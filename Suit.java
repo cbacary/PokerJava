@@ -1,4 +1,5 @@
 public enum Suit {
+    NONE(0),
     HEARTS((int)Math.pow(2, 13)),   // 2^13 = 8192
     DIAMONDS((int)Math.pow(2, 14)), // 2^14 = 16384
     SPADES((int)Math.pow(2, 15)),   // 2^15 = 32768

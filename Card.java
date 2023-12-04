@@ -1,4 +1,6 @@
-public class Card {
+import java.util.Comparator;
+
+public class Card implements Comparable<Card> {
 
     /*
      * Playing cards are represented using an integer where each card type is
@@ -24,6 +26,13 @@ public class Card {
     }
 
     public int getValue() { return value; }
+    
+    public Rank getRank() {return rank; }
+    public Suit getSuit() {return suit; }
+
+    public int getRankValue() {return rank.getValue(); }
+
+    public int getSuitValue() {return suit.getValue(); }
 
     public static boolean isCard(Card card, int other) {
         return (card.value & other) == other;
@@ -56,6 +65,27 @@ public class Card {
         }
         throw new IllegalArgumentException("No rank with given int: " + s);
     }
+
+    /** 
+     * Compares the cards but only by rank, not by suit
+     * */
+    public int compareTo(Card other) {
+        return Integer.compare(rank.getValue(), other.rank.getValue());
+    }
+
+    public static Comparator<Card> compareByRank = new Comparator<Card>() {
+        @Override
+        public int compare(Card c1, Card c2) {
+            return Integer.compare(c1.rank.getValue(), c2.rank.getValue());
+        }
+    };
+
+    public static Comparator<Card> compareBySuit = new Comparator<Card>() {
+        @Override
+        public int compare(Card c1, Card c2) {
+            return Integer.compare(c1.suit.getValue(), c2.suit.getValue());
+        }
+    };
 
     public String toString() {
         return rank.toString() + " " + suit.toString();

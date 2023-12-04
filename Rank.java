@@ -1,4 +1,7 @@
 public enum Rank {
+    // It probably looks unnececary to have these be equal to powers of 2, but 
+    // it makes writing performant hand checks easeir. 
+    NONE(0),
     TWO((int)Math.pow(2, 0)),       // 2^0 = 1
     THREE((int)Math.pow(2, 1)),     // 2^1 = 2
     FOUR((int)Math.pow(2, 2)),      // 2^2 = 4
