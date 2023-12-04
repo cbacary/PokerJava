@@ -66,7 +66,15 @@ public class GameMaster {
             getBets(postFlopStart);
         }
 
-        currentPhase += 1;
+        endPhase();
+    }
+
+    private void endPhase() {
+        for (Player player: players) {
+            player.resetMoneyEntered();
+        }
+        currentRaise = 0;
+        gameStage += 1;
     }
 
     private void placeFlop() {
@@ -171,9 +179,6 @@ public class GameMaster {
         return true;
     }
 
-    // WARNING: I think there are some bugs in this, some infinite loops that
-    // could happen without prior checks so careful when re-writing for GUI.
-    // Specifically, regarding the reRaisedIndex
     private boolean playerRaise(Player player, int playerIndex) {
         System.out.printf("raise by : ", currentRaise);
         int amount = scanner.nextInt();

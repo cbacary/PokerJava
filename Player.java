@@ -26,6 +26,10 @@ public class Player {
         return moneyEnteredThisRound;
     }
 
+    public void resetMoneyEntered() {
+        moneyEnteredThisRound = 0;
+    }
+
     /**
      * Decreased player money by `amount`. If amount > money then player goes
      * all in and `money` is set to 0
