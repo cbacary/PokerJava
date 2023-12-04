@@ -37,6 +37,7 @@ public class GameMaster {
 
         // Creates a pre-shuffled and initialized deck
         deck = new Deck();
+        boardCards = new ArrayList<Card>();
 
         cardsInPlay = 0;
         pot = 0;
@@ -47,13 +48,39 @@ public class GameMaster {
     public void playNextPhase() {
         int currentPhase = gameStage % NUM_STAGES;
 
+        int preFlopStart = (dealer + 3) % players.size();
+        int postFlopStart = (dealer + 1) % players.size();
+
         if (currentPhase == 0) {
             postBlinds();
             dealCards();
-            getBets();
+            getBets(preFlopStart);
+        } else if (currentPhase == 1) {
+            placeFlop();
+            getBets(postFlopStart);
+        } else if (currentPhase == 2) {
+            placeTurn();
+            getBets(postFlopStart);
+        } else if (currentPhase == 3) {
+            placeRiver();
+            getBets(postFlopStart);
         }
 
         currentPhase += 1;
+    }
+
+    private void placeFlop() {
+        for (int i = 0; i < 3; ++i) {
+            boardCards.add(deck.getTopCard(cardsInPlay++));
+        }
+    }
+
+    private void placeTurn() {
+        boardCards.add(deck.getTopCard(cardsInPlay++));
+    }
+
+    private void placeRiver() {
+        boardCards.add(deck.getTopCard(cardsInPlay++));
     }
 
     private void postBlinds() {
@@ -69,26 +96,28 @@ public class GameMaster {
     private void dealCards() {
         for (int i = 0; i < 2; ++i) {
             int player = (dealer + 3) % players.size();
+            System.out.println(player);
             do {
-                players.get(player).addCard(deck.getTopCard(cardsInPlay++));
-                player += 1;
+                players.get(player).addCard(deck.getTopCard(cardsInPlay));
+                cardsInPlay += 1;
+                player = (player + 1) % players.size();
             } while (player != (dealer + 3) % players.size());
         }
     }
 
-    /** 
-     * Iterates through players in correct order getting each of their bets / 
+    /**
+     * Iterates through players in correct order getting each of their bets /
      * decissions
      * */
-    private void getBets() {
-        int playerIndex = (dealer + 3) % players.size();
-        // endPlayer is how we control where we stop asking for bets, it will 
+    private void getBets(int startingPlayerIndex) {
+        int playerIndex = startingPlayerIndex;
+        // endPlayer is how we control where we stop asking for bets, it will
         // be changed by playerRaise if that player is performing a re-raise
-        endPlayer = (dealer + 3) % players.size();
+        endPlayer = startingPlayerIndex;
         do {
 
             if (!playersInGame.get(playerIndex)) {
-                playerIndex += 1;
+                playerIndex = (playerIndex + 1) % players.size();
                 continue;
             }
 
@@ -97,37 +126,22 @@ public class GameMaster {
 
             // if the user made an acceptable decision, increment playerIndex
             if (userAction(player, playerIndex)) {
-                playerIndex += 1;
+                playerIndex = (playerIndex + 1) % players.size();
             }
             // Otherwise don't increment and just rerun loop
         } while (playerIndex != endPlayer);
     }
 
-    /**
-     * Checks if a player raised off a raise. Important because then we have to
-     * reask what previous players want to do. Should only be called after all
-     * players have made their move
-     * @return returns true if a player raised off a raise
-     * */
-    private boolean playerReRaised() {
-        for (int i = 0; i < players.size(); ++i) {
-            if (!playersInGame.get(i))
-                continue;
-            Player player = players.get(i);
-            if (player.getMoneyEntered() != currentRaise &&
-                player.getMoney() != 0) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private void printMenu(Player player, int playerIndex) {
-        System.out.printf("board: %s\tpot: %d\traise: %d", boardToString(), pot,
-                          currentRaise);
-        System.out.printf("Player %d cards: %s", playerIndex,
-                          player.toString());
-        System.out.printf("Player %d ('r'aise, 'c'all, 'f'old): ", playerIndex);
+        int playerCallAmount = currentRaise - player.getMoneyEntered();
+
+        System.out.printf("\nboard: %s\t\tpot: $%d\t\tcall: $%d\n",
+                          boardToString(), pot, playerCallAmount);
+
+        System.out.printf("\nPLAYER %d: %s\t\tcash: $%d\n", playerIndex,
+                          player.handString(), player.getMoney());
+
+        System.out.printf("PLAYER %d ('r'aise, 'c'all, 'f'old)\n", playerIndex);
     }
 
     private boolean userAction(Player player, int playerIndex) {
@@ -157,17 +171,26 @@ public class GameMaster {
         return true;
     }
 
-    // WARNING: I think there are some bugs in this, some infinite loops that 
-    // could happen without prior checks so careful when re-writing for GUI. 
+    // WARNING: I think there are some bugs in this, some infinite loops that
+    // could happen without prior checks so careful when re-writing for GUI.
     // Specifically, regarding the reRaisedIndex
     private boolean playerRaise(Player player, int playerIndex) {
-        System.out.printf("raise by : %d + ", currentRaise);
+        System.out.printf("raise by : ", currentRaise);
         int amount = scanner.nextInt();
+
+        if (amount < 0 || player.getMoney() - (currentRaise + amount) < 0) {
+            System.out.println("Invalid raise amount. Please try again");
+            return false;
+        }
+
+        // First match the call
+        player.call(currentRaise);
+        // Now add raise
         amount = player.raise(amount);
 
         if (amount > 0) {
             // If this is a re-raise, then the round should end only once this
-            // player is reached again, providing other players with their 
+            // player is reached again, providing other players with their
             // opportunity to respond.
             endPlayer = (currentRaise > 0 ? playerIndex : endPlayer);
             currentRaise += amount;

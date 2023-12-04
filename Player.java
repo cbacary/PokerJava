@@ -36,13 +36,14 @@ public class Player {
 
         int amountRaised = (money - amount < 0 ? money : amount);
         money -= amountRaised;
-        moneyEnteredThisRound = amountRaised;
+        moneyEnteredThisRound += amountRaised;
         return amountRaised;
     }
 
     public int call(int raiseToCall) {
         int amountCalled = (money - raiseToCall < 0 ? money : raiseToCall);
         moneyEnteredThisRound += amountCalled;
+        money -= amountCalled;
         return amountCalled;
     }
 
