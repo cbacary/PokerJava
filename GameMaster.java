@@ -45,31 +45,31 @@ public class GameMaster {
         gameStage = 0;
     }
 
-    public void playNextPhase() {
-        int currentPhase = gameStage % NUM_STAGES;
+    public void playNextStage() {
+        int currentStage = gameStage % NUM_STAGES;
 
         int preFlopStart = (dealer + 3) % players.size();
         int postFlopStart = (dealer + 1) % players.size();
 
-        if (currentPhase == 0) {
+        if (currentStage == 0) {
             postBlinds();
             dealCards();
             getBets(preFlopStart);
-        } else if (currentPhase == 1) {
+        } else if (currentStage == 1) {
             placeFlop();
             getBets(postFlopStart);
-        } else if (currentPhase == 2) {
+        } else if (currentStage == 2) {
             placeTurn();
             getBets(postFlopStart);
-        } else if (currentPhase == 3) {
+        } else if (currentStage == 3) {
             placeRiver();
             getBets(postFlopStart);
         }
 
-        endPhase();
+        endStage();
     }
 
-    private void endPhase() {
+    private void endStage() {
         for (Player player: players) {
             player.resetMoneyEntered();
         }
