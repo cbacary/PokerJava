@@ -24,6 +24,19 @@ public class HandHelper {
         }
     }
 
+    public static Hand getPairs(ArrayList<ArrayList<Card>> cardsByRank) {
+        // We start at index 1 because the first and last index are both ace
+        boolean threeKind = false;
+        boolean pair = false;
+
+        for (int rank = 1; rank < cardsByRank.size(); ++rank) {
+            ArrayList<Card> cards = cardsByRank.get(rank);
+            if (cards.size() == 4) {
+                return Hand.FOUR_KIND;
+            } else if ()
+        }
+    }
+
     public static boolean isFullHouse(ArrayList<Card> cards) {
 
         // Sort the cards by rank so cards of same rank are organized
@@ -108,29 +121,6 @@ public class HandHelper {
         }
 
         return (cardsSum & ROYAL_RANKS) == ROYAL_RANKS;
-    }
-
-    public static boolean isStraight(ArrayList<Card> cards) {
-
-        int cardRanks = listRanksToInt(cards);
-
-        // The ranks that represent a straight
-        int straightRanks = ROYAL_RANKS;
-        for (int i = 0; i <= 7; ++i) {
-
-            // AND the given cardRanks and straightRanks, if it is equals the
-            // straightRank then it is a striaght
-            if ((straightRanks & cardRanks) == straightRanks) {
-                return true;
-            }
-
-            // Shift the card ranks down by 1, do this until we covered all
-            // ranks
-            straightRanks = straightRanks >> 1;
-        }
-
-        // If it has not already returned true, then their is no straight
-        return false;
     }
 
     /**
