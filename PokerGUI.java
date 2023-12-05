@@ -4,7 +4,7 @@ import java.awt.Color;
 
 public class PokerGUI extends JFrame {
 
-    private final Color backgroundColor;
+    private final Color backgroundColor = new Color(0, 120, 0);
     private int playerCount;
     private JButton foldButton;
     private JButton callButton;
@@ -14,9 +14,8 @@ public class PokerGUI extends JFrame {
     private JPanel tablePanel;
     private JPanel playerPanel;
 
-    public PokerGUI(int playerCount, Color backgroundColor) {
+    public PokerGUI(int playerCount) {
         this.playerCount = playerCount;
-        this.backgroundColor = backgroundColor;
         setTitle("Texas Hold 'Em Poker");
         setSize(800, 600);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -24,16 +23,9 @@ public class PokerGUI extends JFrame {
 
         // Set the background color
         getContentPane().setBackground(backgroundColor);
-        JFrame frame = new JFrame("Poker");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLayout(new FlowLayout());
-
-
-
     }
 
     private void initializeComponents() {
-        tablePanel = new JPanel(new BorderLayout());
         playerPanel = new JPanel(new FlowLayout());
         TablePanel tablePanel = new TablePanel(playerCount);
         add(tablePanel, BorderLayout.CENTER);
