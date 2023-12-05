@@ -17,6 +17,8 @@ public class GameMaster {
 
     // Stores the index of which player is the final player to place a bet
     private int endPlayer;
+    // index of current players turn
+    private int currentPlayer;
 
     // number of players remaining in this round
     private int playersRemaining;
@@ -48,32 +50,29 @@ public class GameMaster {
     }
 
     public void playNextStage() {
-        int currentStage = gameStage % NUM_STAGES;
+        //int preFlopStart = (dealer + 3) % players.size();
+        //int postFlopStart = (dealer + 1) % players.size();
 
-        int preFlopStart = (dealer + 3) % players.size();
-        int postFlopStart = (dealer + 1) % players.size();
-
-        if (currentStage == 0) {
+        if (gameStage == 0) {
             postBlinds();
             dealCards();
-            getBets(preFlopStart);
-        } else if (currentStage == 1) {
+        } else if (gameStage == 1) {
             placeFlop();
-            getBets(postFlopStart);
-        } else if (currentStage == 2) {
+        } else if (gameStage == 2) {
             placeTurn();
-            getBets(postFlopStart);
-        } else if (currentStage == 3) {
+        } else if (gameStage == 3) {
             placeRiver();
-            getBets(postFlopStart);
         }
 
         if (checkWin()) {
             resetGame();
-            return;
         }
 
         endStage();
+    }
+
+    public ArrayList<Card> getCurrentPlayersCards() {
+        return players.get(currentPlayer).getCards();
     }
 
     private void updatePlayerHands() {
@@ -211,27 +210,26 @@ public class GameMaster {
     private void getBets(int startingPlayerIndex) {
         updatePlayerHands();
 
-        int playerIndex = startingPlayerIndex;
         // endPlayer is how we control where we stop asking for bets, it will
         // be changed by playerRaise if that player is performing a re-raise
         endPlayer = startingPlayerIndex;
         do {
 
             // Check if player folded
-            if (!playersInGame.get(playerIndex)) {
-                playerIndex = (playerIndex + 1) % players.size();
+            if (!playersInGame.get(currentPlayer)) {
+                currentPlayer = (currentPlayer + 1) % players.size();
                 continue;
             }
 
-            Player player = players.get(playerIndex);
-            printMenu(player, playerIndex);
+            Player player = players.get(currentPlayer);
+            printMenu(player, currentPlayer);
 
             // if the user made an acceptable decision, increment playerIndex
-            if (userAction(player, playerIndex)) {
-                playerIndex = (playerIndex + 1) % players.size();
+            if (userAction(player, currentPlayer)) {
+                currentPlayer = (currentPlayer + 1) % players.size();
             }
             // Otherwise don't increment and just rerun loop
-        } while (playerIndex != endPlayer);
+        } while (currentPlayer != endPlayer);
     }
 
     private void printMenu(Player player, int playerIndex) {

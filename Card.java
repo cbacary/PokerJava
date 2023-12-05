@@ -9,12 +9,12 @@ public class Card implements Comparable<Card> {
         suit = s;
     }
 
-    public Rank getRank() {return rank; }
-    public Suit getSuit() {return suit; }
+    public Rank getRank() { return rank; }
+    public Suit getSuit() { return suit; }
 
-    public int getRankValue() {return rank.getValue(); }
+    public int getRankValue() { return rank.getValue(); }
 
-    public int getSuitValue() {return suit.getValue(); }
+    public int getSuitValue() { return suit.getValue(); }
 
     public static Rank intToRank(int r) {
         for (Rank rank : Rank.values()) {
@@ -25,12 +25,21 @@ public class Card implements Comparable<Card> {
         throw new IllegalArgumentException("No rank with given int: " + r);
     }
 
-    public static Suit intToSuit(int s) {
-        return Suit.values()[s];
-    }
+    public static Suit intToSuit(int s) { return Suit.values()[s]; }
 
-    public String toString() {
-        return rank.toString() + " " + suit.toString();
+    public String toString() { return rank.toString() + " " + suit.toString(); }
+
+    public String getImageFileName() {
+        String name = rank.toString().toLowerCase();
+        for (int i = 1; i < 10; ++i) {
+            if (Rank.values()[i] == rank) {
+                name = "" + i;
+                break;
+            }
+        }
+        name += "_of_" + suit.toString().toLowerCase() + ".png";
+
+        return name;
     }
 
     public int compareTo(Card other) {
@@ -43,5 +52,4 @@ public class Card implements Comparable<Card> {
             return Integer.compare(c1.rank.getValue(), c2.rank.getValue());
         }
     };
-
 }
