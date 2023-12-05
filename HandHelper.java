@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class HandHelper {
 
@@ -6,26 +7,28 @@ public class HandHelper {
         Rank.TEN.getValue() | Rank.JACK.getValue() | Rank.QUEEN.getValue() |
         Rank.KING.getValue() | Rank.ACE.getValue();
 
-    public static Hand getHand(ArrayList<Card> board, ArrayList<Card> player) {
+    public static HandResult getHand(ArrayList<Card> board, ArrayList<Card> player) {
+
         ArrayList<Card> cards = new ArrayList<Card>();
+        ArrayList<HandResult> hands = new ArrayList<HandResult>();
+
         cards.addAll(board);
         cards.addAll(player);
+
+        Collections.sort(cards);
 
         ArrayList<ArrayList<Card>> cardsByRank = cardsByRank(cards);
         ArrayList<ArrayList<Card>> cardsBySuit = cardsBySuit(cards);
 
-        Hand bestHand = Hand.HIGH_CARD;
+        hands.add(getStraights(cardsByRank));
 
-        Hand h = getStraights(cardsByRank);
-        bestHand = (bestHand.getValue() < h.getValue() ? h : bestHand);
+        hands.add(getPairs(cardsByRank));
 
-        h = getPairs(cardsByRank);
-        bestHand = (bestHand.getValue() < h.getValue() ? h : bestHand);
+        hands.add(getFlush(cardsBySuit));
 
-        h = getFlush(cardsBySuit);
-        bestHand = (bestHand.getValue() < h.getValue() ? h : bestHand);
+        hands.add(new HandResult(Hand.HIGH_CARD, cards.get(cards.size() - 1)));
 
-        return bestHand;
+        return Collections.max(hands);
     }
 
     public static HandResult getPairs(ArrayList<ArrayList<Card>> cardsByRank) {
@@ -142,10 +145,11 @@ public class HandHelper {
     }
 
     /** 
-     * NOTE: can return null. function checks for flush in passed in cards.
+     * function checks for flush in passed in cards
      * 
      * @param cardsBySuit: list of cards sorted by suit
-     * @return HandResult if flush otherwise returns null
+     * @return HandResult if flush otherwise returns throwaway HandResult 
+     * which is a HIGH_CARD with a ONE of CLUBS which doesnt actually exist
      * */
     public static HandResult getFlush(ArrayList<ArrayList<Card>> cardsBySuit) {
 
@@ -155,7 +159,9 @@ public class HandHelper {
             }
         }
 
-        return null;
+        // Return a throwaway because we cant return null and a card of rank 
+        // one wont interere with anything
+        return new HandResult(Hand.HIGH_CARD, new Card(Rank.ONE, Suit.CLUBS));
     }
 
     /** 

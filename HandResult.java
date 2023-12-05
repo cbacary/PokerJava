@@ -18,6 +18,7 @@ public class HandResult implements Comparable<HandResult> {
     HandResult() {
         hand = Hand.HIGH_CARD;
         handCards = new ArrayList<Card>();
+        handCards.add(new Card(Rank.ONE, Suit.CLUBS));
     }
 
     HandResult(Hand h, ArrayList<Card> cards) {
@@ -25,7 +26,16 @@ public class HandResult implements Comparable<HandResult> {
         handCards = new ArrayList<Card>(cards);
     }
 
-    public void updateHand(Hand h, ArrayList<Card> cards) { hand = h; }
+    HandResult(Hand h, Card card) {
+        hand = h;
+        handCards = new ArrayList<Card>();
+        handCards.add(card);
+    }
+
+    public void updateHand(Hand h, ArrayList<Card> cards) { 
+        hand = h; 
+        handCards = new ArrayList<Card>(cards);
+    }
 
     public Hand getHand() { return hand; }
 

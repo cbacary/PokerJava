@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Scanner;
 
 public class GameMaster {
@@ -10,7 +11,7 @@ public class GameMaster {
     // Scanner object is temporary just for testing, will be replaced with GUI
     private Scanner scanner;
     private ArrayList<Player> players;
-    private ArrayList<Boolean> playersInGame;
+    private ArrayList<Boolean> playersInGame; // boolean arr of who folded
     private ArrayList<Card> boardCards;
     private Deck deck;
 
@@ -32,10 +33,8 @@ public class GameMaster {
         scanner = new Scanner(System.in);
 
         players = new ArrayList<Player>();
-        playersInGame = new ArrayList<Boolean>();
         for (int i = 0; i < numPlayers; ++i) {
             players.add(new Player(startingCash));
-            playersInGame.add(true);
         }
 
         // Creates a pre-shuffled and initialized deck
@@ -69,35 +68,53 @@ public class GameMaster {
         endStage();
     }
 
-    private Player getWinner() {
+    // 1,100 lines of code later... finally get to write this function
+    private void checkWin() {
 
-        if (playersRemaining > 1 && getGameStage() < 3) {
-            return null;
+        // There can be multiple winners
+        ArrayList<Player> winners = new ArrayList<Player>();
+
+        if (playersRemaining > 1 && getGameStage() < NUM_STAGES - 1) {
+            return;
         } else if (playersRemaining == 1) {
-            for (int i = 0; i < playersInGame.size(); ++i) {
-                if (playersInGame.get(i)) return players.get(i);
+            for (int i = 0; i < players.size(); ++i) {
+                if (!playersInGame.get(i)) {
+                    winners.add(players.get(i));
+                    playersWon(winners);
+                    return;
+                }
             }
         }
 
         // Otherwise its final stage and we actually need to compare hands
+
+        // Get active players
+        ArrayList<Player> sortedByHand = new ArrayList<Player>();
         for (int i = 0; i < players.size(); ++i) {
-            
+            if (playersInGame.get(i)) {
+                sortedByHand.add(players.get(i));
+            }
         }
 
+        // Sort by hand value
+        Collections.sort(sortedByHand, Player.compareByHand);
 
-        if (gameStage % NUM_STAGES < 3) {
-            Player winner = null;
-            for (int i = 0; i < playersInGame.size(); ++i) {
-                // >= 2 players remaining, game is ongoing
-                if (playersInGame.get(i) && winner != null) return null;
-                else winner = players.get(i);
+        for (int i = sortedByHand.size() - 1; i >= 1; --i) {
+
+            winners.add(sortedByHand.get(i));
+            if (Player.compareByHand.compare(sortedByHand.get(i),
+                                             sortedByHand.get(i - 1)) != 0) {
+                break;
             }
-            // If we made it here, only one player remains
-            return winner;
-        } 
+        }
 
-        
+        playersWon(winners);
+    }
 
+    private void playersWon(ArrayList<Player> winners) {
+        for (Player p: winners) {
+            p.addMoney(pot / winners.size());
+        }
     }
 
     private int getGameStage() {
@@ -111,10 +128,15 @@ public class GameMaster {
         pot = 0;
         currentRaise = 0;
         gameStage = 0;
+
+        for (int i = 0; i < players.size(); ++i) {
+            playersInGame.set(i, true);
+            players.get(i).resetPlayer();
+        }
     }
 
     private void endStage() {
-        for (Player player: players) {
+        for (Player player : players) {
             player.resetMoneyEntered();
         }
         currentRaise = 0;
@@ -127,9 +149,7 @@ public class GameMaster {
         }
     }
 
-    private void placeTurn() {
-        boardCards.add(deck.getTopCard(cardsInPlay++));
-    }
+    private void placeTurn() { boardCards.add(deck.getTopCard(cardsInPlay++)); }
 
     private void placeRiver() {
         boardCards.add(deck.getTopCard(cardsInPlay++));
@@ -235,6 +255,7 @@ public class GameMaster {
 
         // First match the call
         player.call(currentRaise);
+
         // Now add raise
         amount = player.raise(amount);
 

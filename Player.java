@@ -1,7 +1,10 @@
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class Player {
+
     private ArrayList<Card> cards;
+    private HandResult hand;
     
     private int money;
     private int moneyEnteredThisRound;
@@ -17,6 +20,10 @@ public class Player {
     public void addCard(Card card) { cards.add(card); }
 
     public void clearCards() { cards.clear(); }
+    
+    public void addMoney(int amount) {
+        money += amount;
+    }
 
     public int getMoney() {
         return money;
@@ -28,6 +35,12 @@ public class Player {
 
     public void resetMoneyEntered() {
         moneyEnteredThisRound = 0;
+    }
+
+    public void resetPlayer() {
+        hand = new HandResult();
+        moneyEnteredThisRound = 0;
+        cards = new ArrayList<Card>();
     }
 
     /**
@@ -58,4 +71,11 @@ public class Player {
         }
         return handStr;
     }
+
+    public static Comparator<Player> compareByHand = new Comparator<Player>() {
+        @Override
+        public int compare(Player p1, Player p2) {
+            return p1.hand.compareTo(p2.hand);
+        };
+    };
 }
