@@ -2,6 +2,7 @@ public enum Rank {
 
     // Initially i did hand checking quite differently but i decided to keep the 
     // powers of 2 thing anyway even though its only actually utilized once lol. 
+    // so it is probably dumb yea
 
     ONE   (0)                   ,       // 0     -> used for ace
     TWO   ((int) Math.pow(2, 1)),       // 2^1

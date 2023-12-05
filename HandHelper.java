@@ -28,45 +28,55 @@ public class HandHelper {
         return bestHand;
     }
 
-    public static Hand getPairs(ArrayList<ArrayList<Card>> cardsByRank) {
+    public static HandResult getPairs(ArrayList<ArrayList<Card>> cardsByRank) {
 
         // Loop through cards sorted by rank and get the highest pair count and
         // the next highest pair count.
         int highestPairCount = 0;
+        int highestPairCountIndex = 0;
         int nextPairCount = 0;
+        int nextPairCountIndex = 0;
 
         // We start at index 1 because the first and last index are both ace
         for (int rank = 1; rank < cardsByRank.size(); ++rank) {
             if (cardsByRank.get(rank).size() >= highestPairCount) {
                 nextPairCount = highestPairCount;
+                nextPairCountIndex = highestPairCountIndex;
                 highestPairCount = cardsByRank.get(rank).size();
+                highestPairCountIndex = rank;
             }
         }
 
+        ArrayList<Card> handCards = new ArrayList<Card>();
+
+        // Add the cards that make up the hand to a list for creating HandResult
+        handCards.addAll(cardsByRank.get(nextPairCountIndex));
+        handCards.addAll(cardsByRank.get(highestPairCountIndex));
+
+        Hand hand = Hand.HIGH_CARD;
         if (highestPairCount == 4) {
-            return Hand.FOUR_KIND;
+            hand = Hand.FOUR_KIND;
         } else if (highestPairCount >= 3 && nextPairCount >= 2) {
-            return Hand.FULL_HOUSE;
+            hand = Hand.FULL_HOUSE;
         } else if (highestPairCount == 3) {
-            return Hand.THREE_KIND;
+            hand = Hand.THREE_KIND;
         } else if (highestPairCount == 2 && nextPairCount == 2) {
-            return Hand.TWO_PAIR;
+            hand = Hand.TWO_PAIR;
         } else if (highestPairCount == 2) {
-            return Hand.PAIR;
+            hand = Hand.PAIR;
         }
 
-        return Hand.HIGH_CARD;
+        return new HandResult(hand, handCards);
     }
 
     /**
-     * Returns the highest straight value present in the cards. A list of cards
-     * sorted by rank must be passed in.
+     * Returns the highest straight value present in the cards.
      *
-     * @param cardsByRank: Must be a list of cards sorted by rank.
-     * @return the highest value straight type hand present in the cards.
-     *          ROYAL_FLUSH, STRAIGHT_FLUSH, STRAIGHT
+     * @param cardsByRank: list of cards sorted by rank.
+     * @return HandResult... checks for:
+     *         ROYAL_FLUSH, STRAIGHT_FLUSH, STRAIGHT
      * */
-    public static Hand getStraights(ArrayList<ArrayList<Card>> cardsByRank) {
+    public static HandResult getStraights(ArrayList<ArrayList<Card>> cardsByRank) {
 
         // Create a list of straights present in the deck
         int straightCounter = 0;
@@ -96,42 +106,62 @@ public class HandHelper {
             straights.add(new ArrayList<Card>(currentStraight));
         }
 
-        // Iterate through straights
         Hand bestHand = Hand.HIGH_CARD;
+        ArrayList<Card> handCards = new ArrayList<Card>();
+
+        // Iterate through straights
         for (ArrayList<Card> straight : straights) {
 
             // If we are here, bestHand should at a minimum be a straight
-            bestHand =
-                (bestHand.getValue() <= Hand.STRAIGHT.getValue() ? Hand.STRAIGHT
-                                                                : bestHand);
+            if (bestHand.getValue() < Hand.STRAIGHT.getValue()) {
+                bestHand = Hand.STRAIGHT;
+                // this should probably just be set as a reference but safer
+                handCards = new ArrayList<Card>(straight);
+            }
 
             // Now check if straight flush by organizing the straight by suit
             ArrayList<ArrayList<Card>> straightsBySuit = cardsBySuit(straight);
             for (ArrayList<Card> lst : straightsBySuit) {
+
+                // If the list size is greater than 5 then straight flush
                 if (lst.size() >= 5) {
-                    // checks if it is a straight flush or a royal flush
+
+                    // check if royal flush
                     if ((listRanksToInt(lst) & ROYAL_RANKS) == ROYAL_RANKS) {
-                        return Hand.ROYAL_FLUSH;
+                        bestHand = Hand.ROYAL_FLUSH;
+                        handCards = new ArrayList<Card>(lst);
+                        break;
                     }
+                    handCards = new ArrayList<Card>(lst);
                     bestHand = Hand.STRAIGHT_FLUSH;
                 }
             }
         }
 
-        return bestHand;
+        return new HandResult(bestHand, handCards);
     }
 
-    public static Hand getFlush(ArrayList<ArrayList<Card>> cardsBySuit) {
+    /** 
+     * NOTE: can return null. function checks for flush in passed in cards.
+     * 
+     * @param cardsBySuit: list of cards sorted by suit
+     * @return HandResult if flush otherwise returns null
+     * */
+    public static HandResult getFlush(ArrayList<ArrayList<Card>> cardsBySuit) {
 
         for (ArrayList<Card> cardsForSuit : cardsBySuit) {
             if (cardsForSuit.size() >= 5) {
-                return Hand.FLUSH;
+                return new HandResult(Hand.FLUSH, cardsForSuit);
             }
         }
 
-        return Hand.HIGH_CARD;
+        return null;
     }
 
+    /** 
+     * Returns a list of cards organized by suit where each index is a list 
+     * corresponding to a suit
+     * */
     public static ArrayList<ArrayList<Card>>
     cardsBySuit(ArrayList<Card> cards) {
 

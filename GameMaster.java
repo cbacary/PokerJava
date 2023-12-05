@@ -17,6 +17,9 @@ public class GameMaster {
     // Stores the index of which player is the final player to place a bet
     private int endPlayer;
 
+    // number of players remaining in this round
+    private int playersRemaining;
+
     private int pot;
     private int currentRaise;
     private int cardsInPlay;
@@ -39,10 +42,7 @@ public class GameMaster {
         deck = new Deck();
         boardCards = new ArrayList<Card>();
 
-        cardsInPlay = 0;
-        pot = 0;
-        currentRaise = 0;
-        gameStage = 0;
+        resetGame();
     }
 
     public void playNextStage() {
@@ -67,6 +67,50 @@ public class GameMaster {
         }
 
         endStage();
+    }
+
+    private Player getWinner() {
+
+        if (playersRemaining > 1 && getGameStage() < 3) {
+            return null;
+        } else if (playersRemaining == 1) {
+            for (int i = 0; i < playersInGame.size(); ++i) {
+                if (playersInGame.get(i)) return players.get(i);
+            }
+        }
+
+        // Otherwise its final stage and we actually need to compare hands
+        for (int i = 0; i < players.size(); ++i) {
+            
+        }
+
+
+        if (gameStage % NUM_STAGES < 3) {
+            Player winner = null;
+            for (int i = 0; i < playersInGame.size(); ++i) {
+                // >= 2 players remaining, game is ongoing
+                if (playersInGame.get(i) && winner != null) return null;
+                else winner = players.get(i);
+            }
+            // If we made it here, only one player remains
+            return winner;
+        } 
+
+        
+
+    }
+
+    private int getGameStage() {
+        // really just in case i mess something up
+        return gameStage % NUM_STAGES;
+    }
+
+    private void resetGame() {
+        playersRemaining = players.size();
+        cardsInPlay = 0;
+        pot = 0;
+        currentRaise = 0;
+        gameStage = 0;
     }
 
     private void endStage() {
@@ -124,6 +168,7 @@ public class GameMaster {
         endPlayer = startingPlayerIndex;
         do {
 
+            // Check if player folded
             if (!playersInGame.get(playerIndex)) {
                 playerIndex = (playerIndex + 1) % players.size();
                 continue;
@@ -213,6 +258,7 @@ public class GameMaster {
 
     private void playerFold(int playerIndex) {
         playersInGame.set(playerIndex, false);
+        playersRemaining--;
     }
 
     private String boardToString() {

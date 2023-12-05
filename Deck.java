@@ -29,6 +29,7 @@ public class Deck {
     private void initializeDeck() {
         int count = 0;
         for (Rank rank: Rank.values()) {
+            if (rank == Rank.ONE) continue;
             for (Suit suit: Suit.values()) {
                 Card c = new Card(rank, suit);
                 deck[count] = c;
