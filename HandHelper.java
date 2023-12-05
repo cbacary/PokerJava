@@ -11,10 +11,8 @@ public class HandHelper {
         cards.addAll(board);
         cards.addAll(player);
 
-
         ArrayList<ArrayList<Card>> cardsByRank = cardsByRank(cards);
         ArrayList<ArrayList<Card>> cardsBySuit = cardsBySuit(cards);
-
 
         Hand bestHand = Hand.HIGH_CARD;
 
@@ -28,12 +26,11 @@ public class HandHelper {
         bestHand = (bestHand.getValue() < h.getValue() ? h : bestHand);
 
         return bestHand;
-
     }
 
     public static Hand getPairs(ArrayList<ArrayList<Card>> cardsByRank) {
 
-        // Loop through cards sorted by rank and get the highest pair count and 
+        // Loop through cards sorted by rank and get the highest pair count and
         // the next highest pair count.
         int highestPairCount = 0;
         int nextPairCount = 0;
@@ -48,7 +45,7 @@ public class HandHelper {
 
         if (highestPairCount == 4) {
             return Hand.FOUR_KIND;
-        } else if (highestPairCount >= 3 && nextPairCount >= 3) {
+        } else if (highestPairCount >= 3 && nextPairCount >= 2) {
             return Hand.FULL_HOUSE;
         } else if (highestPairCount == 3) {
             return Hand.THREE_KIND;
@@ -71,19 +68,12 @@ public class HandHelper {
      * */
     public static Hand getStraights(ArrayList<ArrayList<Card>> cardsByRank) {
 
-        /* Essentially, we create a list of straights
-         * which stores all the straights present in the cards. we count how
-         * many ranks in a row are seen (I.E when the size of 5 consecutive
-         * indicies is > 0). if a straight is found, we add it to a list of
-         * straights. then loop through the list of straights and create a list
-         * categorized by suit for each straight. if the size of any of these
-         * lists is >= 5 then we either have a straight flush or a royal flush.
-         * this may or may not be a terrible way to do it.
-         * */
+        // Create a list of straights present in the deck
+        int straightCounter = 0;
         ArrayList<ArrayList<Card>> straights = new ArrayList<ArrayList<Card>>();
         ArrayList<Card> currentStraight = new ArrayList<Card>();
-        int straightCounter = 0;
         for (ArrayList<Card> cards : cardsByRank) {
+
             if (cards.size() != 0) {
                 currentStraight.addAll(cards);
                 straightCounter += 1;
@@ -91,7 +81,7 @@ public class HandHelper {
                 // If the size of cards is 0 then current straight is disrupted
                 // so if we have a straight add it to list of straights
                 if (straightCounter >= 5) {
-                    straights.add(currentStraight);
+                    straights.add(new ArrayList<Card>(currentStraight));
                 }
 
                 // reset currentStraight
@@ -103,17 +93,16 @@ public class HandHelper {
         // Have to perform additional check in cases where final card checked
         // is part of straight
         if (straightCounter >= 5) {
-            straights.add(currentStraight);
+            straights.add(new ArrayList<Card>(currentStraight));
         }
 
+        // Iterate through straights
         Hand bestHand = Hand.HIGH_CARD;
         for (ArrayList<Card> straight : straights) {
 
-            // If we are here, there must atleast be a straight... we must
-            // perform a check before setting bestHand otherwise we may replace
-            // a straightFlush with a straight
+            // If we are here, bestHand should at a minimum be a straight
             bestHand =
-                (bestHand.getValue() < Hand.STRAIGHT.getValue() ? Hand.STRAIGHT
+                (bestHand.getValue() <= Hand.STRAIGHT.getValue() ? Hand.STRAIGHT
                                                                 : bestHand);
 
             // Now check if straight flush by organizing the straight by suit
@@ -121,28 +110,15 @@ public class HandHelper {
             for (ArrayList<Card> lst : straightsBySuit) {
                 if (lst.size() >= 5) {
                     // checks if it is a straight flush or a royal flush
-                    bestHand = straightFOrR(lst, bestHand);
+                    if ((listRanksToInt(lst) & ROYAL_RANKS) == ROYAL_RANKS) {
+                        return Hand.ROYAL_FLUSH;
+                    }
+                    bestHand = Hand.STRAIGHT_FLUSH;
                 }
             }
         }
 
         return bestHand;
-    }
-
-    /**
-     * Checks if a straight flush is just a straight flush or is a royal flush
-     *
-     * This function should only be called by getStraights() and is only here
-     * to make things more concise
-     * */
-    private static Hand straightFOrR(ArrayList<Card> cards, Hand bestHand) {
-        if (listRanksToInt(cards) == ROYAL_RANKS) {
-            return Hand.ROYAL_FLUSH;
-        }
-
-        return (bestHand.getValue() < Hand.STRAIGHT_FLUSH.getValue()
-                    ? Hand.STRAIGHT_FLUSH
-                    : bestHand);
     }
 
     public static Hand getFlush(ArrayList<ArrayList<Card>> cardsBySuit) {
@@ -160,7 +136,12 @@ public class HandHelper {
     cardsBySuit(ArrayList<Card> cards) {
 
         ArrayList<ArrayList<Card>> cardsBySuit =
-            new ArrayList<ArrayList<Card>>(Suit.values().length);
+            new ArrayList<ArrayList<Card>>();
+
+        // Initialize list
+        for (int i = 0; i < Suit.values().length; ++i) {
+            cardsBySuit.add(new ArrayList<Card>());
+        }
 
         for (Card card : cards) {
             Suit s = card.getSuit();
@@ -178,7 +159,12 @@ public class HandHelper {
     public static ArrayList<ArrayList<Card>>
     cardsByRank(ArrayList<Card> cards) {
         ArrayList<ArrayList<Card>> cardsByRank;
-        cardsByRank = new ArrayList<ArrayList<Card>>(Rank.values().length);
+        cardsByRank = new ArrayList<ArrayList<Card>>();
+
+        // Initialize list
+        for (int i = 0; i < Rank.values().length; ++i) {
+            cardsByRank.add(new ArrayList<Card>());
+        }
 
         for (Card card : cards) {
             Rank r = card.getRank();
@@ -208,7 +194,7 @@ public class HandHelper {
         return sum;
     }
 
-    private static int getRankIndex(Rank rank) {
+    public static int getRankIndex(Rank rank) {
         return (int)(Math.log(rank.getValue()) / Math.log(2));
     }
 }

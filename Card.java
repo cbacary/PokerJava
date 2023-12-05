@@ -1,6 +1,6 @@
 import java.util.Comparator;
 
-public class Card implements Comparable<Card> {
+public class Card {
 
     /*
      * Playing cards are represented using an integer where each card type is
@@ -58,19 +58,7 @@ public class Card implements Comparable<Card> {
     }
 
     public static Suit intToSuit(int s) {
-        for (Suit suit: Suit.values()) {
-            if ((suit.getValue() & s) != 0) {
-                return suit;
-            }
-        }
-        throw new IllegalArgumentException("No rank with given int: " + s);
-    }
-
-    /** 
-     * Compares the cards but only by rank, not by suit
-     * */
-    public int compareTo(Card other) {
-        return Integer.compare(rank.getValue(), other.rank.getValue());
+        return Suit.values()[s];
     }
 
     public static Comparator<Card> compareByRank = new Comparator<Card>() {

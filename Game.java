@@ -3,7 +3,7 @@ public class Game {
         GameMaster gm = new GameMaster(6, 1000);
 
         while (true) {
-            gm.playNextPhase();
+            gm.playNextStage();
         }
     }
 }
