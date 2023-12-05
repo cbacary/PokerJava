@@ -33,8 +33,11 @@ public class GameMaster {
         scanner = new Scanner(System.in);
 
         players = new ArrayList<Player>();
+        playersInGame = new ArrayList<Boolean>();
         for (int i = 0; i < numPlayers; ++i) {
-            players.add(new Player(startingCash));
+            players.add(
+                new Player(String.format("Player %d", (i + 1)), startingCash));
+            playersInGame.add(true);
         }
 
         // Creates a pre-shuffled and initialized deck
@@ -65,28 +68,44 @@ public class GameMaster {
             getBets(postFlopStart);
         }
 
+        if (checkWin()) {
+            resetGame();
+            return;
+        }
+
         endStage();
     }
 
+    private void updatePlayerHands() {
+
+        for (Player p : players) {
+            HandResult h = HandHelper.getHand(boardCards, p.getCards());
+            p.setHand(h);
+        }
+    }
+
     // 1,100 lines of code later... finally get to write this function
-    private void checkWin() {
+    private boolean checkWin() {
 
         // There can be multiple winners
         ArrayList<Player> winners = new ArrayList<Player>();
 
         if (playersRemaining > 1 && getGameStage() < NUM_STAGES - 1) {
-            return;
+            return false;
         } else if (playersRemaining == 1) {
             for (int i = 0; i < players.size(); ++i) {
                 if (!playersInGame.get(i)) {
                     winners.add(players.get(i));
                     playersWon(winners);
-                    return;
+                    return true;
                 }
             }
         }
 
         // Otherwise its final stage and we actually need to compare hands
+
+        // First make sure the player hands are correct
+        updatePlayerHands();
 
         // Get active players
         ArrayList<Player> sortedByHand = new ArrayList<Player>();
@@ -109,12 +128,15 @@ public class GameMaster {
         }
 
         playersWon(winners);
+        return true;
     }
 
     private void playersWon(ArrayList<Player> winners) {
-        for (Player p: winners) {
+        for (Player p : winners) {
             p.addMoney(pot / winners.size());
+            System.out.printf("%s won, ", p.getName());
         }
+        System.out.println();
     }
 
     private int getGameStage() {
@@ -129,10 +151,14 @@ public class GameMaster {
         currentRaise = 0;
         gameStage = 0;
 
+        dealer = (dealer + 1) % players.size();
+
         for (int i = 0; i < players.size(); ++i) {
             playersInGame.set(i, true);
             players.get(i).resetPlayer();
         }
+        boardCards.clear();
+        deck.shuffleDeck();
     }
 
     private void endStage() {
@@ -175,6 +201,7 @@ public class GameMaster {
                 player = (player + 1) % players.size();
             } while (player != (dealer + 3) % players.size());
         }
+
     }
 
     /**
@@ -182,6 +209,8 @@ public class GameMaster {
      * decissions
      * */
     private void getBets(int startingPlayerIndex) {
+        updatePlayerHands();
+
         int playerIndex = startingPlayerIndex;
         // endPlayer is how we control where we stop asking for bets, it will
         // be changed by playerRaise if that player is performing a re-raise
@@ -211,10 +240,12 @@ public class GameMaster {
         System.out.printf("\nboard: %s\t\tpot: $%d\t\tcall: $%d\n",
                           boardToString(), pot, playerCallAmount);
 
-        System.out.printf("\nPLAYER %d: %s\t\tcash: $%d\n", playerIndex,
-                          player.handString(), player.getMoney());
+        System.out.printf("\n%s: %s\t\tcash: $%d\t\thand: %s\n",
+                          player.getName(), player.handString(),
+                          player.getMoney(),
+                          player.getHand().getHand().toString());
 
-        System.out.printf("PLAYER %d ('r'aise, 'c'all, 'f'old)\n", playerIndex);
+        System.out.printf("%s ('r'aise, 'c'all, 'f'old)\n", player.getName());
     }
 
     private boolean userAction(Player player, int playerIndex) {

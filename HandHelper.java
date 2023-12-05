@@ -7,7 +7,8 @@ public class HandHelper {
         Rank.TEN.getValue() | Rank.JACK.getValue() | Rank.QUEEN.getValue() |
         Rank.KING.getValue() | Rank.ACE.getValue();
 
-    public static HandResult getHand(ArrayList<Card> board, ArrayList<Card> player) {
+    public static HandResult getHand(ArrayList<Card> board,
+                                     ArrayList<Card> player) {
 
         ArrayList<Card> cards = new ArrayList<Card>();
         ArrayList<HandResult> hands = new ArrayList<HandResult>();
@@ -20,18 +21,21 @@ public class HandHelper {
         ArrayList<ArrayList<Card>> cardsByRank = cardsByRank(cards);
         ArrayList<ArrayList<Card>> cardsBySuit = cardsBySuit(cards);
 
-        hands.add(getStraights(cardsByRank));
+        HandResult highHand =
+            new HandResult(Hand.HIGH_CARD, cards.get(cards.size() - 1));
+        hands.add(highHand);
 
-        hands.add(getPairs(cardsByRank));
+        hands.add(getStraights(cardsByRank, highHand));
 
-        hands.add(getFlush(cardsBySuit));
+        hands.add(getPairs(cardsByRank, highHand));
 
-        hands.add(new HandResult(Hand.HIGH_CARD, cards.get(cards.size() - 1)));
+        hands.add(getFlush(cardsBySuit, highHand));
 
         return Collections.max(hands);
     }
 
-    public static HandResult getPairs(ArrayList<ArrayList<Card>> cardsByRank) {
+    public static HandResult getPairs(ArrayList<ArrayList<Card>> cardsByRank,
+                                      HandResult currentHand) {
 
         // Loop through cards sorted by rank and get the highest pair count and
         // the next highest pair count.
@@ -50,10 +54,18 @@ public class HandHelper {
             }
         }
 
+        // We need to return something if no pairs, so return the current hand
+        // passed in
+        if (highestPairCount <= 1) {
+            return currentHand;
+        }
+
         ArrayList<Card> handCards = new ArrayList<Card>();
 
         // Add the cards that make up the hand to a list for creating HandResult
-        handCards.addAll(cardsByRank.get(nextPairCountIndex));
+        if (nextPairCount >= 2) {
+            handCards.addAll(cardsByRank.get(nextPairCountIndex));
+        }
         handCards.addAll(cardsByRank.get(highestPairCountIndex));
 
         Hand hand = Hand.HIGH_CARD;
@@ -79,7 +91,9 @@ public class HandHelper {
      * @return HandResult... checks for:
      *         ROYAL_FLUSH, STRAIGHT_FLUSH, STRAIGHT
      * */
-    public static HandResult getStraights(ArrayList<ArrayList<Card>> cardsByRank) {
+    public static HandResult
+    getStraights(ArrayList<ArrayList<Card>> cardsByRank,
+                 HandResult currentHand) {
 
         // Create a list of straights present in the deck
         int straightCounter = 0;
@@ -107,6 +121,10 @@ public class HandHelper {
         // is part of straight
         if (straightCounter >= 5) {
             straights.add(new ArrayList<Card>(currentStraight));
+        }
+
+        if (straights.size() == 0) {
+            return currentHand;
         }
 
         Hand bestHand = Hand.HIGH_CARD;
@@ -144,14 +162,15 @@ public class HandHelper {
         return new HandResult(bestHand, handCards);
     }
 
-    /** 
+    /**
      * function checks for flush in passed in cards
-     * 
+     *
      * @param cardsBySuit: list of cards sorted by suit
-     * @return HandResult if flush otherwise returns throwaway HandResult 
+     * @return HandResult if flush otherwise returns throwaway HandResult
      * which is a HIGH_CARD with a ONE of CLUBS which doesnt actually exist
      * */
-    public static HandResult getFlush(ArrayList<ArrayList<Card>> cardsBySuit) {
+    public static HandResult getFlush(ArrayList<ArrayList<Card>> cardsBySuit,
+                                      HandResult currentHand) {
 
         for (ArrayList<Card> cardsForSuit : cardsBySuit) {
             if (cardsForSuit.size() >= 5) {
@@ -159,13 +178,11 @@ public class HandHelper {
             }
         }
 
-        // Return a throwaway because we cant return null and a card of rank 
-        // one wont interere with anything
-        return new HandResult(Hand.HIGH_CARD, new Card(Rank.ONE, Suit.CLUBS));
+        return currentHand;
     }
 
-    /** 
-     * Returns a list of cards organized by suit where each index is a list 
+    /**
+     * Returns a list of cards organized by suit where each index is a list
      * corresponding to a suit
      * */
     public static ArrayList<ArrayList<Card>>

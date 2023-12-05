@@ -5,42 +5,46 @@ public class Player {
 
     private ArrayList<Card> cards;
     private HandResult hand;
-    
+
+    private String name;
+
     private int money;
     private int moneyEnteredThisRound;
-    
-    Player(int startingCash) {
+
+    Player(String playerName, int startingCash) {
         cards = new ArrayList<Card>();
+
+        // just set hand to null that way if we check it we'll get null except
+        hand = null;
+
         money = startingCash;
         moneyEnteredThisRound = 0;
+
+        name = playerName;
     }
 
     public ArrayList<Card> getCards() { return cards; }
 
     public void addCard(Card card) { cards.add(card); }
 
-    public void clearCards() { cards.clear(); }
-    
-    public void addMoney(int amount) {
-        money += amount;
-    }
+    public void setHand(HandResult h) { hand = h; }
 
-    public int getMoney() {
-        return money;
-    }
-    
-    public int getMoneyEntered() {
-        return moneyEnteredThisRound;
-    }
+    public HandResult getHand() { return hand; }
 
-    public void resetMoneyEntered() {
-        moneyEnteredThisRound = 0;
-    }
+    public String getName() { return name; }
+
+    public void addMoney(int amount) { money += amount; }
+
+    public int getMoney() { return money; }
+
+    public int getMoneyEntered() { return moneyEnteredThisRound; }
+
+    public void resetMoneyEntered() { moneyEnteredThisRound = 0; }
 
     public void resetPlayer() {
-        hand = new HandResult();
+        hand = null;
         moneyEnteredThisRound = 0;
-        cards = new ArrayList<Card>();
+        cards.clear();
     }
 
     /**
@@ -66,7 +70,7 @@ public class Player {
 
     public String handString() {
         String handStr = "";
-        for (Card card: cards) {
+        for (Card card : cards) {
             handStr += card.toString() + ", ";
         }
         return handStr;

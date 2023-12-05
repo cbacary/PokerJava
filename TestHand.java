@@ -10,6 +10,7 @@ public class TestHand {
         testFourOfAKind();
         testFullHouse();
         testFourOfAKind();
+        testThreeOfAKind();
     }
 
     private static void testRoyal() {
@@ -30,7 +31,7 @@ public class TestHand {
             board.add(new Card(Rank.JACK, suit));
             player.add(new Card(Rank.QUEEN, suit));
 
-            Hand hand = HandHelper.getHand(board, player);
+            Hand hand = HandHelper.getHand(board, player).getHand();
             if (hand == Hand.ROYAL_FLUSH) {
                 royalCount += 1;
             }
@@ -77,7 +78,7 @@ public class TestHand {
                     suit = (suit + 1) % Suit.values().length;
             }
 
-            Hand hand = HandHelper.getHand(board, player);
+            Hand hand = HandHelper.getHand(board, player).getHand();
             if (hand == EXPECTED_HAND) {
                 straightCount += 1;
             }
@@ -154,7 +155,7 @@ public class TestHand {
     private static void checkHand(String handType, Hand expected,
                                   ArrayList<Card> board,
                                   ArrayList<Card> player) {
-        Hand hand = HandHelper.getHand(board, player);
+        Hand hand = HandHelper.getHand(board, player).getHand();
         if (hand == expected) {
             System.out.println(handType + " test PASSED");
         } else {
