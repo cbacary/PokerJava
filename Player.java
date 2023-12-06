@@ -10,6 +10,8 @@ public class Player {
 
     private int money;
     private int moneyEnteredThisRound;
+    // player can only win as much as they have entered in a pot
+    private int moneyEnteredThisPot;
 
     Player(String playerName, int startingCash) {
         cards = new ArrayList<Card>();
@@ -39,11 +41,16 @@ public class Player {
 
     public int getMoneyEntered() { return moneyEnteredThisRound; }
 
+    public int getMoneyEnteredThisPot() {
+        return moneyEnteredThisPot;
+    }
+
     public void resetMoneyEntered() { moneyEnteredThisRound = 0; }
 
     public void resetPlayer() {
         hand = null;
         moneyEnteredThisRound = 0;
+        moneyEnteredThisPot = 0;
         cards.clear();
     }
 
@@ -54,17 +61,24 @@ public class Player {
      * @return returns the actual amount the pot will be raised by
      * */
     public int raise(int amount) {
-
         int amountRaised = (money - amount < 0 ? money : amount);
+
         money -= amountRaised;
+
         moneyEnteredThisRound += amountRaised;
+        moneyEnteredThisPot += amountRaised;
+
         return amountRaised;
     }
 
     public int call(int raiseToCall) {
         int amountCalled = (money - raiseToCall < 0 ? money : raiseToCall);
-        moneyEnteredThisRound += amountCalled;
+
         money -= amountCalled;
+
+        moneyEnteredThisRound += amountCalled;
+        moneyEnteredThisPot += amountCalled;
+
         return amountCalled;
     }
 

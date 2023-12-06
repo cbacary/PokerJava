@@ -25,9 +25,4 @@ public class PokerOpenGUI {
         });
     }
 
-    private static void playPoker(int playerCount) {
-        // Poker game logic for the specified number of players
-        PokerGUI pokerGame = new PokerGUI(playerCount);
-        pokerGame.setVisible(true);
-    }
 }

@@ -7,14 +7,14 @@ import javax.swing.*;
 
 public class GUIMainMenu extends JFrame {
 
-    private final Color DARK_GREEN = new Color(0, 120, 0);
-    private final int MAX_PLAYERS = 6;
-
     public interface MenuListener {
         void onPlayClicked(int playerCount);
     }
 
     private MenuListener listener;
+
+    private final Color DARK_GREEN = new Color(0, 120, 0);
+    private final int MAX_PLAYERS = 6;
 
 
     public GUIMainMenu() {

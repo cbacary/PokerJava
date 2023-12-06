@@ -8,10 +8,8 @@ public class GameMaster {
     private final int BB_AMOUNT = 50;
     private final static int NUM_STAGES = 4;
 
-    // Scanner object is temporary just for testing, will be replaced with GUI
-    private Scanner scanner;
     private ArrayList<Player> players;
-    private ArrayList<Boolean> playersInGame; // boolean arr of who folded
+    private ArrayList<Boolean> playersInGame;
     private ArrayList<Card> boardCards;
     private Deck deck;
 
@@ -32,8 +30,6 @@ public class GameMaster {
     private int dealer;
 
     GameMaster(int numPlayers, int startingCash) {
-        scanner = new Scanner(System.in);
-
         players = new ArrayList<Player>();
         playersInGame = new ArrayList<Boolean>();
         for (int i = 0; i < numPlayers; ++i) {
@@ -46,12 +42,17 @@ public class GameMaster {
         deck = new Deck();
         boardCards = new ArrayList<Card>();
 
-        resetGame();
+        playersRemaining = players.size();
+        cardsInPlay = 0;
+        pot = 0;
+        currentRaise = 0;
+        gameStage = 0;
+        dealer = 0;
     }
 
     public void playNextStage() {
-        //int preFlopStart = (dealer + 3) % players.size();
-        //int postFlopStart = (dealer + 1) % players.size();
+        // int preFlopStart = (dealer + 3) % players.size();
+        // int postFlopStart = (dealer + 1) % players.size();
 
         if (gameStage == 0) {
             postBlinds();
@@ -64,16 +65,97 @@ public class GameMaster {
             placeRiver();
         }
 
-        if (checkWin()) {
-            resetGame();
-        }
+        updatePlayerHands();
 
         endStage();
+    }
+
+    public void startNextStage() {
+        currentPlayer = (gameStage == 0 ? (dealer + 3) % players.size()
+                                        : (dealer + 1) % players.size());
+
+        if (gameStage == 0) {
+            postBlinds();
+            dealCards();
+        } else if (gameStage == 1) {
+            placeFlop();
+        } else if (gameStage == 2) {
+            placeTurn();
+        } else if (gameStage == 3) {
+            placeRiver();
+        }
+
+        updatePlayerHands();
+    }
+
+    public void endCurrentStage() {
+        currentRaise = 0;
+        gameStage += 1;
+        for (Player player : players) {
+            player.resetMoneyEntered();
+        }
+    }
+
+    public void reset() {
+        playersRemaining = players.size();
+        cardsInPlay = 0;
+        pot = 0;
+        currentRaise = 0;
+        gameStage = 0;
+
+        dealer = (dealer + 1) % players.size();
+
+        for (int i = 0; i < players.size(); ++i) {
+            playersInGame.set(i, true);
+            players.get(i).resetPlayer();
+        }
+
+        boardCards.clear();
+        deck.shuffleDeck();
+    }
+
+    public void currentPlayerRaise(int raiseAmount) {
+        playerRaise(currentPlayer, raiseAmount);
+    }
+
+    public void currentPlayerFold() { playerFold(currentPlayer); }
+
+    public void currentPlayerCall() { playerCall(players.get(currentPlayer)); }
+
+    /**
+     * Returns true if the stage is finished.
+     * */
+    public boolean nextPlayerTurn() {
+
+        if (playersRemaining <= 1) {
+            return false;
+        }
+
+        int nextPlayer = currentPlayer;
+        // Essentially loop until we get to the next active player, and if
+        // the next active player is the endPlayer then we return false
+        while (!playersInGame.get((++nextPlayer) % players.size()) &&
+               (nextPlayer % players.size()) != endPlayer) {
+            currentPlayer = nextPlayer % players.size();
+            return true;
+        }
+
+        return false;
+    }
+
+    public Player getCurrentPlayer() { return players.get(currentPlayer); }
+
+    public int getCurrentPlayerCallAmount() {
+        return currentRaise - players.get(currentPlayer).getMoneyEntered();
     }
 
     public ArrayList<Card> getCurrentPlayersCards() {
         return players.get(currentPlayer).getCards();
     }
+
+    public ArrayList<Card> getBoardCards() { return boardCards; }
+
+    public int getPotValue() { return pot; }
 
     private void updatePlayerHands() {
 
@@ -84,19 +166,19 @@ public class GameMaster {
     }
 
     // 1,100 lines of code later... finally get to write this function
-    private boolean checkWin() {
+    // function returns null if no winner
+    public ArrayList<Player> checkWin() {
 
         // There can be multiple winners
         ArrayList<Player> winners = new ArrayList<Player>();
 
         if (playersRemaining > 1 && getGameStage() < NUM_STAGES - 1) {
-            return false;
+            return null;
         } else if (playersRemaining == 1) {
             for (int i = 0; i < players.size(); ++i) {
                 if (!playersInGame.get(i)) {
                     winners.add(players.get(i));
-                    playersWon(winners);
-                    return true;
+                    return winners;
                 }
             }
         }
@@ -126,38 +208,22 @@ public class GameMaster {
             }
         }
 
-        playersWon(winners);
-        return true;
+        return winners;
     }
 
-    private void playersWon(ArrayList<Player> winners) {
+    public String rewardPlayers(ArrayList<Player> winners) {
+        String result = "";
         for (Player p : winners) {
-            p.addMoney(pot / winners.size());
-            System.out.printf("%s won, ", p.getName());
+            int winnings = pot / winners.size();
+            p.addMoney(winnings);
+            result += String.format("%s won $%d\n", p.getName(), winnings);
         }
-        System.out.println();
+        return result;
     }
 
     private int getGameStage() {
         // really just in case i mess something up
         return gameStage % NUM_STAGES;
-    }
-
-    private void resetGame() {
-        playersRemaining = players.size();
-        cardsInPlay = 0;
-        pot = 0;
-        currentRaise = 0;
-        gameStage = 0;
-
-        dealer = (dealer + 1) % players.size();
-
-        for (int i = 0; i < players.size(); ++i) {
-            playersInGame.set(i, true);
-            players.get(i).resetPlayer();
-        }
-        boardCards.clear();
-        deck.shuffleDeck();
     }
 
     private void endStage() {
@@ -200,37 +266,36 @@ public class GameMaster {
                 player = (player + 1) % players.size();
             } while (player != (dealer + 3) % players.size());
         }
-
     }
 
     /**
      * Iterates through players in correct order getting each of their bets /
      * decissions
      * */
-    private void getBets(int startingPlayerIndex) {
-        updatePlayerHands();
+    //private void getBets(int startingPlayerIndex) {
+        //updatePlayerHands();
 
-        // endPlayer is how we control where we stop asking for bets, it will
-        // be changed by playerRaise if that player is performing a re-raise
-        endPlayer = startingPlayerIndex;
-        do {
+        //// endPlayer is how we control where we stop asking for bets, it will
+        //// be changed by playerRaise if that player is performing a re-raise
+        //endPlayer = startingPlayerIndex;
+        //do {
 
-            // Check if player folded
-            if (!playersInGame.get(currentPlayer)) {
-                currentPlayer = (currentPlayer + 1) % players.size();
-                continue;
-            }
+            //// Check if player folded
+            //if (!playersInGame.get(currentPlayer)) {
+                //currentPlayer = (currentPlayer + 1) % players.size();
+                //continue;
+            //}
 
-            Player player = players.get(currentPlayer);
-            printMenu(player, currentPlayer);
+            //Player player = players.get(currentPlayer);
+            //printMenu(player, currentPlayer);
 
-            // if the user made an acceptable decision, increment playerIndex
-            if (userAction(player, currentPlayer)) {
-                currentPlayer = (currentPlayer + 1) % players.size();
-            }
-            // Otherwise don't increment and just rerun loop
-        } while (currentPlayer != endPlayer);
-    }
+            //// if the user made an acceptable decision, increment playerIndex
+            //if (userAction(player, currentPlayer)) {
+                //currentPlayer = (currentPlayer + 1) % players.size();
+            //}
+            //// Otherwise don't increment and just rerun loop
+        //} while (currentPlayer != endPlayer);
+    //}
 
     private void printMenu(Player player, int playerIndex) {
         int playerCallAmount = currentRaise - player.getMoneyEntered();
@@ -246,59 +311,25 @@ public class GameMaster {
         System.out.printf("%s ('r'aise, 'c'all, 'f'old)\n", player.getName());
     }
 
-    private boolean userAction(Player player, int playerIndex) {
-        String choice = scanner.nextLine();
-        switch (choice) {
-        case "r":
-            if (currentRaise - player.getMoneyEntered() > player.getMoney()) {
-                System.out.println(
-                    "You do not have enough money to raise. You can either call or fold.");
-                return false;
-            }
-            if (!playerRaise(player, playerIndex)) {
-                System.out.println("You cannot raise by this amount.");
-                return false;
-            }
-            break;
-        case "c":
-            playerCall(player);
-            break;
-        case "f":
-            playerFold(playerIndex);
-            break;
-        default:
-            System.out.println("Invalid choice. Try again.");
-            return false;
-        }
-        return true;
-    }
+    private boolean playerRaise(int playerIndex, int amount) {
+        Player player = players.get(playerIndex);
 
-    private boolean playerRaise(Player player, int playerIndex) {
-        System.out.printf("raise by : ", currentRaise);
-        int amount = scanner.nextInt();
-
-        if (amount < 0 || player.getMoney() - (currentRaise + amount) < 0) {
-            System.out.println("Invalid raise amount. Please try again");
+        if (amount < 0) {
             return false;
         }
 
         // First match the call
-        player.call(currentRaise);
+        amount -= player.call(currentRaise);
 
         // Now add raise
         amount = player.raise(amount);
 
-        if (amount > 0) {
-            // If this is a re-raise, then the round should end only once this
-            // player is reached again, providing other players with their
-            // opportunity to respond.
-            endPlayer = (currentRaise > 0 ? playerIndex : endPlayer);
-            currentRaise += amount;
-            pot += amount;
-            return true;
-        }
-        System.out.println("Invalid raise amount. Please try again");
-        return false;
+        endPlayer = (amount > 0 ? playerIndex : endPlayer);
+
+        currentRaise += amount;
+        pot += amount;
+
+        return true;
     }
 
     private void playerCall(Player player) {
