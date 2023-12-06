@@ -17,6 +17,7 @@ public class GUIPlayer extends JComponent {
         this.tag = _tag;
         player = p;
         color = Color.BLUE;
+        setBounds(1, 1, 1, 1);
     }
 
     public void setCircle(int x, int y, int w, int h) {

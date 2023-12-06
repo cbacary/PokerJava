@@ -2,36 +2,25 @@ import java.awt.*;
 import java.util.ArrayList;
 import javax.swing.*;
 
-public class GUITablePanel extends JPanel {
+public class GUITablePanel extends JComponent {
 
     private final int PLAYER_W = 100;
     private final int PLAYER_H = 100;
 
-    private ArrayList<GUIPlayer> guiPlayers;
-
     private int currentPlayer;
+    private int dealer;
 
-    public GUITablePanel(ArrayList<Player> players, int dealer) {
-        int sb = (dealer + 1) % players.size();
-        int bb = (dealer + 2) % players.size();
-        guiPlayers = new ArrayList<GUIPlayer>();
-        for (int i = 0; i < players.size(); ++i) {
-            String tag = players.get(i).getName();
-            if (i == dealer)
-                tag += " -- D";
-            else if (i == sb)
-                tag += " -- SB";
-            else if (i == bb)
-                tag += " -- BB";
-            GUIPlayer p = new GUIPlayer(players.get(i), tag);
-            p.setVisible(true);
-            add(p);
-            guiPlayers.add(p);
-        }
+    private ArrayList<Player> players;
+
+    public GUITablePanel(ArrayList<Player> players) {
+        this.players = new ArrayList<Player>(players);
     }
 
-    public void setCurrentPlayer(int currentPlayer) {
+    public void updatePlayerGUI(int currentPlayer, int dealer) {
         this.currentPlayer = currentPlayer;
+        this.dealer = dealer;
+
+        repaint();
     }
 
     protected void paintComponent(Graphics g) {
@@ -53,26 +42,49 @@ public class GUITablePanel extends JPanel {
 
         g2d.fillOval(x, y, width, height);
 
-        double angleStep = 360 / (double)guiPlayers.size();
+        double angleStep = 360 / (double) players.size();
         int a = width / 2;
         int b = height / 2;
 
         double angle = angleStep;
-        for (int i = 0; i < guiPlayers.size(); i++) {
-            double xCircle = a * Math.cos(Math.toRadians(angle)) + getWidth() / 2;
-            double yCircle = b * Math.sin(Math.toRadians(angle)) + getHeight() / 2;
-            
+        for (int i = 0; i < players.size(); i++) {
+
+            double xCircle =
+                a * Math.cos(Math.toRadians(angle)) + getWidth() / 2;
+            double yCircle =
+                b * Math.sin(Math.toRadians(angle)) + getHeight() / 2;
+
             xCircle -= PLAYER_W / 2;
             yCircle -= PLAYER_H / 2;
 
+            g2d.setColor(Color.BLUE);
             if (i == currentPlayer) {
-                guiPlayers.get(i).setColor(Color.GREEN);
+                g2d.setColor(Color.GREEN);
             }
 
-            guiPlayers.get(i).setCircle((int)xCircle, (int)yCircle, PLAYER_W,
-                                        PLAYER_H);
+            // Gray out the oval if folded
+            if (players.get(i).getLastAction().equals("Fold")) {
+                g2d.setColor(Color.GRAY);
+            }
 
-            //guiPlayers.get(i).correctBounds(getBounds());
+            g2d.fillOval((int) xCircle, (int) yCircle, PLAYER_W, PLAYER_H);
+
+            int sb = (dealer + 1) % players.size();
+            int bb = (dealer + 2) % players.size();
+
+            String tag = players.get(i).getName();
+            if (i == dealer)
+                tag += " -- D";
+            else if (i == sb)
+                tag += " -- SB";
+            else if (i == bb)
+                tag += " -- BB";
+
+            x = x + (width / 2);
+            y = y + (height / 2);
+            g2d.setColor(Color.WHITE);
+            g2d.drawString(tag, (int) xCircle, (int) yCircle - 20);
+            g2d.drawString(players.get(i).getLastAction(), (int) xCircle, (int) yCircle - 5);
 
             angle += angleStep;
         }

@@ -278,6 +278,7 @@ public class GameMaster {
     }
 
     private void playerFold(int playerIndex) {
+        players.get(playerIndex).setActionFold();
         playersInGame.set(playerIndex, false);
         playersRemaining--;
     }

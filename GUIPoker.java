@@ -56,18 +56,17 @@ public class GUIPoker extends JFrame {
         layeredPane = getLayeredPane();
 
         playerPanel = new JPanel(new FlowLayout());
-        tablePanel = new GUITablePanel(gm.getAllPlayers(), gm.getDealer());
-        tablePanel.setCurrentPlayer(gm.getCurrentPlayerInt());
+
+        tablePanel = new GUITablePanel(gm.getAllPlayers());
+        tablePanel.updatePlayerGUI(gm.getCurrentPlayerInt(), gm.getDealer());
 
         foldButton = new JButton("Fold");
         callButton = new JButton("Call");
-        // raiseButton = new JButton("Raise");
         handChecker = new JButton("See/Hide Cards");
 
         // Add action listeners to buttons
         foldButton.addActionListener(e -> handleFoldAction());
         callButton.addActionListener(e -> handleCallAction());
-        // raiseButton.addActionListener(e -> handleRaiseAction());
         handChecker.addActionListener(e -> toggleSeeCards());
 
         // Raise button is special
@@ -129,6 +128,8 @@ public class GUIPoker extends JFrame {
         setPotTextPosition();
 
         raiseButton.setMinRaiseValue(callAmount);
+
+        tablePanel.updatePlayerGUI(gm.getCurrentPlayerInt(), gm.getDealer());
 
         setupBoardCards();
         setupPlayerCards();
