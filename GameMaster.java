@@ -50,7 +50,7 @@ public class GameMaster {
         dealer = 0;
     }
 
-    public void playNextStage() {
+    private void playNextStage() {
         // int preFlopStart = (dealer + 3) % players.size();
         // int postFlopStart = (dealer + 1) % players.size();
 
@@ -73,6 +73,7 @@ public class GameMaster {
     public void startNextStage() {
         currentPlayer = (gameStage == 0 ? (dealer + 3) % players.size()
                                         : (dealer + 1) % players.size());
+        endPlayer = currentPlayer;
 
         if (gameStage == 0) {
             postBlinds();
@@ -111,6 +112,7 @@ public class GameMaster {
         }
 
         boardCards.clear();
+
         deck.shuffleDeck();
     }
 
@@ -132,15 +134,14 @@ public class GameMaster {
         }
 
         int nextPlayer = currentPlayer;
-        // Essentially loop until we get to the next active player, and if
-        // the next active player is the endPlayer then we return false
-        while (!playersInGame.get((++nextPlayer) % players.size()) &&
-               (nextPlayer % players.size()) != endPlayer) {
-            currentPlayer = nextPlayer % players.size();
-            return true;
+        while (true) {
+            nextPlayer = (nextPlayer + 1) % players.size();
+            if (nextPlayer == endPlayer) return false;
+            if (playersInGame.get(nextPlayer)) {
+                currentPlayer = nextPlayer;
+                return true;
+            }
         }
-
-        return false;
     }
 
     public Player getCurrentPlayer() { return players.get(currentPlayer); }
@@ -172,7 +173,7 @@ public class GameMaster {
         // There can be multiple winners
         ArrayList<Player> winners = new ArrayList<Player>();
 
-        if (playersRemaining > 1 && getGameStage() < NUM_STAGES - 1) {
+        if (playersRemaining > 1 && getGameStage() < NUM_STAGES) {
             return null;
         } else if (playersRemaining == 1) {
             for (int i = 0; i < players.size(); ++i) {

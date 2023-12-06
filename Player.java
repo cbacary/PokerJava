@@ -72,7 +72,7 @@ public class Player {
     }
 
     public int call(int raiseToCall) {
-        int amountCalled = (money - raiseToCall < 0 ? money : raiseToCall);
+        int amountCalled = (money - raiseToCall - moneyEnteredThisRound < 0 ? money : raiseToCall);
 
         money -= amountCalled;
 

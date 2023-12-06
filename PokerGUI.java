@@ -38,7 +38,7 @@ public class PokerGUI extends JFrame {
 
         // Create the game and play the first stage, dealing and post blinds
         gm = new GameMaster(playerCount, STARTING_CASH);
-        gm.playNextStage();
+        gm.startNextStage();
 
         setTitle("Texas Hold 'Em Poker");
         setSize(800, 600);
@@ -67,7 +67,7 @@ public class PokerGUI extends JFrame {
         foldButton.addActionListener(e -> handleFoldAction());
         callButton.addActionListener(e -> handleCallAction());
         // raiseButton.addActionListener(e -> handleRaiseAction());
-        handChecker.addActionListener(e -> handleSeeCards());
+        handChecker.addActionListener(e -> toggleSeeCards());
 
         // Raise button is special
         raiseButton = new GUIRaiseButton();
@@ -103,6 +103,7 @@ public class PokerGUI extends JFrame {
 
     private void updateInfo() {
         Player player = gm.getCurrentPlayer();
+        System.out.println(player.getName());
 
         int money = player.getMoney();
         int callAmount = gm.getCurrentPlayerCallAmount();
@@ -119,6 +120,9 @@ public class PokerGUI extends JFrame {
 
         setupBoardCards();
         setupPlayerCards();
+
+        if (showPlayerCards)
+            toggleSeeCards();
     }
 
     private void setupBoardCards() {
@@ -127,8 +131,9 @@ public class PokerGUI extends JFrame {
         // If there are no board cards just return
         if (boardCards.size() == 0)
             return;
-    
-        if (boardCardPanel != null) layeredPane.remove(boardCardPanel);
+
+        if (boardCardPanel != null)
+            layeredPane.remove(boardCardPanel);
 
         boardCardPanel = new JPanel(new FlowLayout(FlowLayout.TRAILING));
         boardCardPanel.setOpaque(false);
@@ -137,7 +142,7 @@ public class PokerGUI extends JFrame {
             String imageFileName = IMAGE_DIR + card.getImageFileName();
 
             Image img = new ImageIcon(imageFileName).getImage();
-            img = img.getScaledInstance(75, 200, Image.SCALE_SMOOTH);
+            img = img.getScaledInstance(40, 75, Image.SCALE_SMOOTH);
 
             ImageIcon cardIcon = new ImageIcon(img);
             JLabel cardLabel = new JLabel(cardIcon);
@@ -157,15 +162,18 @@ public class PokerGUI extends JFrame {
 
         ArrayList<Card> playerCards = gm.getCurrentPlayersCards();
 
-        if (playerCards.size() == 0) return;
+        if (playerCards.size() == 0)
+            return;
 
-        if (cardPanel != null) layeredPane.remove(cardPanel);
+        if (cardPanel != null)
+            layeredPane.remove(cardPanel);
 
         cardPanel = new JPanel(new FlowLayout(FlowLayout.TRAILING));
         cardPanel.setOpaque(false);
 
         for (Card card : playerCards) {
             String imageFileName = IMAGE_DIR + card.getImageFileName();
+            System.out.println(imageFileName);
 
             Image img = new ImageIcon(imageFileName).getImage();
             img = img.getScaledInstance(75, 200, Image.SCALE_SMOOTH);
@@ -180,13 +188,13 @@ public class PokerGUI extends JFrame {
         setPlayerCardsPosition();
     }
 
-    private void handleFoldAction() { 
-        gm.currentPlayerFold(); 
+    private void handleFoldAction() {
+        gm.currentPlayerFold();
         checkNextStage();
     }
 
-    private void handleCallAction() { 
-        gm.currentPlayerCall(); 
+    private void handleCallAction() {
+        gm.currentPlayerCall();
         checkNextStage();
     }
 
@@ -212,7 +220,7 @@ public class PokerGUI extends JFrame {
         }
     }
 
-    private void handleSeeCards() {
+    private void toggleSeeCards() {
 
         showPlayerCards = !showPlayerCards;
 
@@ -245,10 +253,10 @@ public class PokerGUI extends JFrame {
             return;
         }
 
-        int x = getWidth() / 2 - boardCardPanel.getPreferredSize().width;
+        int x = getWidth() / 2 - boardCardPanel.getPreferredSize().width / 2;
         int y = getHeight() / 2 - boardCardPanel.getPreferredSize().height;
 
-        cardPanel.setBounds(x, y, boardCardPanel.getPreferredSize().width,
-                            boardCardPanel.getPreferredSize().height);
+        boardCardPanel.setBounds(x, y, boardCardPanel.getPreferredSize().width,
+                                 boardCardPanel.getPreferredSize().height);
     }
 }
