@@ -57,7 +57,6 @@ public class GUITablePanel extends JPanel {
         int a = width / 2;
         int b = height / 2;
 
-        // Calculate positions and draw circles for each player
         double angle = angleStep;
         for (int i = 0; i < guiPlayers.size(); i++) {
             double xCircle = a * Math.cos(Math.toRadians(angle)) + getWidth() / 2;
@@ -73,7 +72,7 @@ public class GUITablePanel extends JPanel {
             guiPlayers.get(i).setCircle((int)xCircle, (int)yCircle, PLAYER_W,
                                         PLAYER_H);
 
-            guiPlayers.get(i).correctBounds(getBounds());
+            //guiPlayers.get(i).correctBounds(getBounds());
 
             angle += angleStep;
         }
