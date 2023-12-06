@@ -247,23 +247,17 @@ public class GameMaster {
         }
 
         // First match the call
-        amount -= player.call(currentRaise);
-        if (amount <= 0) {
-            if (amount <= 0) {
-                System.out.printf("amount after call: %d amount\n", amount);
-            }
-        }
+        int amountCalled = player.call(currentRaise);
+
+        int amountToRaise = amount - amountCalled;
 
         // Now add raise
-        amount = player.raise(amount);
-        if (amount <= 0) {
-            System.out.printf("amount after raise: %d amount\n", amount);
-        }
+        int amountRaised = player.raise(amountToRaise);
 
         endPlayer = (amount > 0 ? playerIndex : endPlayer);
 
-        currentRaise += amount;
-        pot += amount;
+        currentRaise += amountRaised;
+        pot += amountCalled + amountRaised;
 
         return true;
     }

@@ -3,6 +3,8 @@ import java.util.Comparator;
 
 public class Player {
 
+    private String lastAction;
+
     private ArrayList<Card> cards;
     private HandResult hand;
 
@@ -10,6 +12,7 @@ public class Player {
 
     private int money;
     private int moneyEnteredThisRound;
+
     // player can only win as much as they have entered in a pot
     private int moneyEnteredThisPot;
 
@@ -23,6 +26,8 @@ public class Player {
         moneyEnteredThisRound = 0;
 
         name = playerName;
+
+        lastAction = "";
     }
 
     public ArrayList<Card> getCards() { return cards; }
@@ -50,6 +55,11 @@ public class Player {
         moneyEnteredThisRound = 0;
         moneyEnteredThisPot = 0;
         cards.clear();
+        lastAction = "";
+    }
+
+    public void setActionFold() {
+        lastAction = "Fold";
     }
 
     /**
@@ -65,12 +75,14 @@ public class Player {
 
         moneyEnteredThisRound += amountRaised;
         moneyEnteredThisPot += amountRaised;
+        
+        lastAction = "Raise $" + amountRaised;
 
         return amountRaised;
     }
 
     public int call(int raiseToCall) {
-        int amountCalled = (money - raiseToCall - moneyEnteredThisRound < 0
+        int amountCalled = (money - (raiseToCall - moneyEnteredThisRound) < 0
                                 ? money
                                 : raiseToCall - moneyEnteredThisRound);
 
@@ -78,6 +90,8 @@ public class Player {
 
         moneyEnteredThisRound += amountCalled;
         moneyEnteredThisPot += amountCalled;
+
+        lastAction = "Call";
 
         return amountCalled;
     }

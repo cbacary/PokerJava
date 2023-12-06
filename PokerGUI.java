@@ -41,7 +41,7 @@ public class PokerGUI extends JFrame {
         gm.startNextStage();
 
         setTitle("Texas Hold 'Em Poker");
-        setSize(800, 600);
+        setSize(1000, 800);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         // Set the background color
@@ -80,20 +80,28 @@ public class PokerGUI extends JFrame {
 
         playerMoney = new JLabel("Cash: $");
         playerHand = new JLabel("Hand: ");
-        currentPot = new JLabel("");
+        playerHand.setVisible(false);
 
         playerPanel.add(playerMoney);
         playerPanel.add(foldButton);
         playerPanel.add(callButton);
         playerPanel.add(raiseButton);
         playerPanel.add(handChecker);
-        playerPanel.add(playerHand);
+
+        currentPot = new JLabel("Pot: $");
+
+        currentPot.setForeground(Color.WHITE);
+        currentPot.setFont(currentPot.getFont().deriveFont(14f));
+
+        layeredPane.add(currentPot);
+        layeredPane.add(playerHand);
 
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
                 setPlayerCardsPosition();
                 setBoardCardPosition();
+                setPotTextPosition();
             }
         });
 
@@ -112,9 +120,12 @@ public class PokerGUI extends JFrame {
         Hand hand = player.getHand().getHand();
 
         playerMoney.setText(String.format("$%d", money));
+        playerHand.setForeground(Color.WHITE);
         playerHand.setText(hand.toString());
         callButton.setText(String.format("Call ($%d)", callAmount));
+
         currentPot.setText(String.format("Pot: $%d", pot));
+        setPotTextPosition();
 
         raiseButton.setMinRaiseValue(callAmount);
 
@@ -129,11 +140,12 @@ public class PokerGUI extends JFrame {
         ArrayList<Card> boardCards = gm.getBoardCards();
 
         // If there are no board cards just return
+        if (boardCardPanel != null) {
+            boardCardPanel.removeAll();
+        }
+
         if (boardCards.size() == 0)
             return;
-
-        if (boardCardPanel != null)
-            layeredPane.remove(boardCardPanel);
 
         boardCardPanel = new JPanel(new FlowLayout(FlowLayout.TRAILING));
         boardCardPanel.setOpaque(false);
@@ -142,7 +154,7 @@ public class PokerGUI extends JFrame {
             String imageFileName = IMAGE_DIR + card.getImageFileName();
 
             Image img = new ImageIcon(imageFileName).getImage();
-            img = img.getScaledInstance(40, 75, Image.SCALE_SMOOTH);
+            img = img.getScaledInstance(52, 75, Image.SCALE_SMOOTH);
 
             ImageIcon cardIcon = new ImageIcon(img);
             JLabel cardLabel = new JLabel(cardIcon);
@@ -176,13 +188,17 @@ public class PokerGUI extends JFrame {
             System.out.println(imageFileName);
 
             Image img = new ImageIcon(imageFileName).getImage();
-            img = img.getScaledInstance(75, 200, Image.SCALE_SMOOTH);
+            img = img.getScaledInstance(75, 113, Image.SCALE_SMOOTH);
 
             ImageIcon cardIcon = new ImageIcon(img);
             JLabel cardLabel = new JLabel(cardIcon);
 
             cardPanel.add(cardLabel);
         }
+
+        cardPanel.setVisible(false);
+
+        layeredPane.add(cardPanel);
 
         // Positioning the cardsPanel in the bottom right corner
         setPlayerCardsPosition();
@@ -226,9 +242,11 @@ public class PokerGUI extends JFrame {
 
         // Toggle see cards off
         if (!showPlayerCards) {
-            layeredPane.remove(this.cardPanel);
+            cardPanel.setVisible(false);
+            playerHand.setVisible(false);
         } else {
-            layeredPane.add(this.cardPanel);
+            cardPanel.setVisible(true);
+            playerHand.setVisible(true);
         }
 
         revalidate();
@@ -240,12 +258,20 @@ public class PokerGUI extends JFrame {
             return;
         }
 
-        int x = getWidth() - cardPanel.getPreferredSize().width - 10;
+        int x = getWidth() - cardPanel.getPreferredSize().width - 3;
         int y = getHeight() - cardPanel.getPreferredSize().height -
-                (playerPanel.getHeight() + 40);
+                (playerPanel.getHeight() + 60);
 
         cardPanel.setBounds(x, y, cardPanel.getPreferredSize().width,
                             cardPanel.getPreferredSize().height);
+
+        x = (getWidth() - (cardPanel.getPreferredSize().width / 2)) -
+            (playerHand.getPreferredSize().width / 2);
+        y = getHeight() - playerHand.getPreferredSize().height -
+            (playerPanel.getHeight() + 40);
+
+        playerHand.setBounds(x, y, playerHand.getPreferredSize().width,
+                             playerHand.getPreferredSize().height);
     }
 
     private void setBoardCardPosition() {
@@ -258,5 +284,17 @@ public class PokerGUI extends JFrame {
 
         boardCardPanel.setBounds(x, y, boardCardPanel.getPreferredSize().width,
                                  boardCardPanel.getPreferredSize().height);
+    }
+
+    private void setPotTextPosition() {
+        if (currentPot == null) {
+            return;
+        }
+
+        int x = getWidth() / 2 - currentPot.getPreferredSize().width / 2;
+        int y = ((getHeight()) / 5) - currentPot.getPreferredSize().height;
+
+        currentPot.setBounds(x, y, currentPot.getPreferredSize().width,
+                             currentPot.getPreferredSize().height);
     }
 }

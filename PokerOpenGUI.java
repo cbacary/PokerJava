@@ -9,7 +9,7 @@ public class PokerOpenGUI {
 
         mainMenu = new GUIMainMenu();
         mainMenu.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        mainMenu.setSize(800, 600);
+        mainMenu.setSize(1000, 800);
         mainMenu.setVisible(true);
 
         mainMenu.setMenuListener(new GUIMainMenu.MenuListener() {
