@@ -35,14 +35,14 @@ public class GUITablePanel extends JComponent {
         Color brownTable = new Color(140, 70, 20);
         g2d.setColor(brownTable);
 
-        int width = getWidth() - (getWidth() / 10);
-        int height = getHeight() - (2 * getHeight() / 10);
+        int width = getWidth() - (getWidth() / 8);
+        int height = getHeight() - (2 * getHeight() / 8);
         int x = ((getWidth() / 2) - (width / 2));
         int y = ((getHeight() / 2) - (height / 2));
 
         g2d.fillOval(x, y, width, height);
 
-        double angleStep = 360 / (double) players.size();
+        double angleStep = 360 / (double)players.size();
         int a = width / 2;
         int b = height / 2;
 
@@ -57,6 +57,9 @@ public class GUITablePanel extends JComponent {
             xCircle -= PLAYER_W / 2;
             yCircle -= PLAYER_H / 2;
 
+            x = (int)xCircle;
+            y = (int)yCircle;
+
             g2d.setColor(Color.BLUE);
             if (i == currentPlayer) {
                 g2d.setColor(Color.GREEN);
@@ -67,7 +70,7 @@ public class GUITablePanel extends JComponent {
                 g2d.setColor(Color.GRAY);
             }
 
-            g2d.fillOval((int) xCircle, (int) yCircle, PLAYER_W, PLAYER_H);
+            g2d.fillOval(x, y, PLAYER_W, PLAYER_H);
 
             int sb = (dealer + 1) % players.size();
             int bb = (dealer + 2) % players.size();
@@ -80,13 +83,34 @@ public class GUITablePanel extends JComponent {
             else if (i == bb)
                 tag += " -- BB";
 
-            x = x + (width / 2);
-            y = y + (height / 2);
             g2d.setColor(Color.WHITE);
-            g2d.drawString(tag, (int) xCircle, (int) yCircle - 20);
-            g2d.drawString(players.get(i).getLastAction(), (int) xCircle, (int) yCircle - 5);
+
+            FontMetrics f = g2d.getFontMetrics();
+
+            int centerX, centerY;
+
+            centerX = centerStringX(tag, f, x, PLAYER_W);
+            g2d.drawString(tag, centerX, y - 20);
+
+            String lastAction = players.get(i).getLastAction();
+            centerX = centerStringX(lastAction, f, x, PLAYER_W);
+            g2d.drawString(players.get(i).getLastAction(), centerX, y - 5);
+
+            String playerMoney =
+                String.format("$%d", players.get(i).getMoney());
+
+            centerX = centerStringX(playerMoney, f, x, PLAYER_W);
+
+            g2d.drawString(playerMoney, centerX, y + PLAYER_H / 2);
 
             angle += angleStep;
         }
     }
+
+    private int centerStringX(String text, FontMetrics f, int x, int width) {
+        int stringWidth = f.stringWidth(text);
+
+        return x + (width / 2) - (stringWidth / 2);
+    }
+
 }

@@ -79,7 +79,7 @@ public class Player {
         moneyEnteredThisRound += amountRaised;
         moneyEnteredThisPot += amountRaised;
         
-        lastAction = "Raise $" + amountRaised;
+        lastAction = (amountRaised > 0 ? "Raise $" + amountRaised : "Call");
 
         return amountRaised;
     }
