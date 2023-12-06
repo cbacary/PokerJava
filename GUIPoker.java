@@ -5,7 +5,7 @@ import java.awt.event.ComponentEvent;
 import java.util.ArrayList;
 import javax.swing.*;
 
-public class PokerGUI extends JFrame {
+public class GUIPoker extends JFrame {
 
     private final Color BACKGROUND = new Color(0, 120, 0);
     private final int STARTING_CASH = 1000;
@@ -20,7 +20,7 @@ public class PokerGUI extends JFrame {
     private JButton callButton;
     private GUIRaiseButton raiseButton;
 
-    private TablePanel tablePanel;
+    private GUITablePanel tablePanel;
     private JButton handChecker;
 
     private JPanel cardPanel;
@@ -32,7 +32,7 @@ public class PokerGUI extends JFrame {
     private JLabel playerHand;
     private JLabel currentPot;
 
-    public PokerGUI(int numPlayers) {
+    public GUIPoker(int numPlayers) {
         playerCount = numPlayers;
         showPlayerCards = false;
 
@@ -56,7 +56,7 @@ public class PokerGUI extends JFrame {
         layeredPane = getLayeredPane();
 
         playerPanel = new JPanel(new FlowLayout());
-        tablePanel = new TablePanel(playerCount);
+        tablePanel = new GUITablePanel(playerCount);
 
         foldButton = new JButton("Fold");
         callButton = new JButton("Call");

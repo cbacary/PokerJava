@@ -1,11 +1,11 @@
 import javax.swing.*;
 import java.awt.*;
 
-public class TablePanel extends JPanel {
+public class GUITablePanel extends JPanel {
 
     private int playerCount;
 
-    public TablePanel(int playerCount) {
+    public GUITablePanel(int playerCount) {
         this.playerCount = playerCount;
     }
 

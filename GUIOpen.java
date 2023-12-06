@@ -1,9 +1,9 @@
 import javax.swing.*;
 
-public class PokerOpenGUI {
+public class GUIOpen {
 
     private static GUIMainMenu mainMenu;
-    private static PokerGUI pokerGame;
+    private static GUIPoker pokerGame;
 
     public static void main(String[] args) {
 
@@ -16,7 +16,7 @@ public class PokerOpenGUI {
             @Override
             public void onPlayClicked(int playerCount) {
                 mainMenu.setVisible(false);
-                pokerGame = new PokerGUI(playerCount);
+                pokerGame = new GUIPoker(playerCount);
                 pokerGame.setVisible(true);
             }
         });
