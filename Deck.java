@@ -8,6 +8,10 @@ public class Deck {
 
         initializeDeck();
         shuffleDeck();
+
+        for (int i = 0; i < 52; ++i) {
+            System.out.println(deck[i].toString());
+        }
     }
 
     public Deck shuffleDeck() {

@@ -15,12 +15,6 @@ public class HandResult implements Comparable<HandResult> {
     // The hand
     private Hand hand;
 
-    HandResult() {
-        hand = Hand.HIGH_CARD;
-        handCards = new ArrayList<Card>();
-        handCards.add(new Card(Rank.ONE, Suit.CLUBS));
-    }
-
     HandResult(Hand h, ArrayList<Card> cards) {
         hand = h;
         handCards = new ArrayList<Card>(cards);

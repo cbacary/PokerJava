@@ -33,7 +33,7 @@ public class Card implements Comparable<Card> {
         String name = rank.toString().toLowerCase();
         for (int i = 1; i < 10; ++i) {
             if (Rank.values()[i] == rank) {
-                name = "" + i;
+                name = "" + (i + 1);
                 break;
             }
         }

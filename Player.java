@@ -41,9 +41,7 @@ public class Player {
 
     public int getMoneyEntered() { return moneyEnteredThisRound; }
 
-    public int getMoneyEnteredThisPot() {
-        return moneyEnteredThisPot;
-    }
+    public int getMoneyEnteredThisPot() { return moneyEnteredThisPot; }
 
     public void resetMoneyEntered() { moneyEnteredThisRound = 0; }
 
@@ -72,7 +70,9 @@ public class Player {
     }
 
     public int call(int raiseToCall) {
-        int amountCalled = (money - raiseToCall - moneyEnteredThisRound < 0 ? money : raiseToCall);
+        int amountCalled = (money - raiseToCall - moneyEnteredThisRound < 0
+                                ? money
+                                : raiseToCall - moneyEnteredThisRound);
 
         money -= amountCalled;
 

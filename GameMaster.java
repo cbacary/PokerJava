@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Scanner;
 
 public class GameMaster {
 
@@ -48,26 +47,6 @@ public class GameMaster {
         currentRaise = 0;
         gameStage = 0;
         dealer = 0;
-    }
-
-    private void playNextStage() {
-        // int preFlopStart = (dealer + 3) % players.size();
-        // int postFlopStart = (dealer + 1) % players.size();
-
-        if (gameStage == 0) {
-            postBlinds();
-            dealCards();
-        } else if (gameStage == 1) {
-            placeFlop();
-        } else if (gameStage == 2) {
-            placeTurn();
-        } else if (gameStage == 3) {
-            placeRiver();
-        }
-
-        updatePlayerHands();
-
-        endStage();
     }
 
     public void startNextStage() {
@@ -136,7 +115,8 @@ public class GameMaster {
         int nextPlayer = currentPlayer;
         while (true) {
             nextPlayer = (nextPlayer + 1) % players.size();
-            if (nextPlayer == endPlayer) return false;
+            if (nextPlayer == endPlayer)
+                return false;
             if (playersInGame.get(nextPlayer)) {
                 currentPlayer = nextPlayer;
                 return true;
@@ -147,6 +127,9 @@ public class GameMaster {
     public Player getCurrentPlayer() { return players.get(currentPlayer); }
 
     public int getCurrentPlayerCallAmount() {
+        System.out.printf("%d %d %d\n",
+                          players.get(currentPlayer).getMoneyEntered(),
+                          currentRaise, endPlayer);
         return currentRaise - players.get(currentPlayer).getMoneyEntered();
     }
 
@@ -173,7 +156,7 @@ public class GameMaster {
         // There can be multiple winners
         ArrayList<Player> winners = new ArrayList<Player>();
 
-        if (playersRemaining > 1 && getGameStage() < NUM_STAGES) {
+        if (playersRemaining > 1 && gameStage < NUM_STAGES) {
             return null;
         } else if (playersRemaining == 1) {
             for (int i = 0; i < players.size(); ++i) {
@@ -222,19 +205,6 @@ public class GameMaster {
         return result;
     }
 
-    private int getGameStage() {
-        // really just in case i mess something up
-        return gameStage % NUM_STAGES;
-    }
-
-    private void endStage() {
-        for (Player player : players) {
-            player.resetMoneyEntered();
-        }
-        currentRaise = 0;
-        gameStage += 1;
-    }
-
     private void placeFlop() {
         for (int i = 0; i < 3; ++i) {
             boardCards.add(deck.getTopCard(cardsInPlay++));
@@ -269,49 +239,6 @@ public class GameMaster {
         }
     }
 
-    /**
-     * Iterates through players in correct order getting each of their bets /
-     * decissions
-     * */
-    //private void getBets(int startingPlayerIndex) {
-        //updatePlayerHands();
-
-        //// endPlayer is how we control where we stop asking for bets, it will
-        //// be changed by playerRaise if that player is performing a re-raise
-        //endPlayer = startingPlayerIndex;
-        //do {
-
-            //// Check if player folded
-            //if (!playersInGame.get(currentPlayer)) {
-                //currentPlayer = (currentPlayer + 1) % players.size();
-                //continue;
-            //}
-
-            //Player player = players.get(currentPlayer);
-            //printMenu(player, currentPlayer);
-
-            //// if the user made an acceptable decision, increment playerIndex
-            //if (userAction(player, currentPlayer)) {
-                //currentPlayer = (currentPlayer + 1) % players.size();
-            //}
-            //// Otherwise don't increment and just rerun loop
-        //} while (currentPlayer != endPlayer);
-    //}
-
-    private void printMenu(Player player, int playerIndex) {
-        int playerCallAmount = currentRaise - player.getMoneyEntered();
-
-        System.out.printf("\nboard: %s\t\tpot: $%d\t\tcall: $%d\n",
-                          boardToString(), pot, playerCallAmount);
-
-        System.out.printf("\n%s: %s\t\tcash: $%d\t\thand: %s\n",
-                          player.getName(), player.handString(),
-                          player.getMoney(),
-                          player.getHand().getHand().toString());
-
-        System.out.printf("%s ('r'aise, 'c'all, 'f'old)\n", player.getName());
-    }
-
     private boolean playerRaise(int playerIndex, int amount) {
         Player player = players.get(playerIndex);
 
@@ -321,9 +248,17 @@ public class GameMaster {
 
         // First match the call
         amount -= player.call(currentRaise);
+        if (amount <= 0) {
+            if (amount <= 0) {
+                System.out.printf("amount after call: %d amount\n", amount);
+            }
+        }
 
         // Now add raise
         amount = player.raise(amount);
+        if (amount <= 0) {
+            System.out.printf("amount after raise: %d amount\n", amount);
+        }
 
         endPlayer = (amount > 0 ? playerIndex : endPlayer);
 
@@ -341,14 +276,5 @@ public class GameMaster {
     private void playerFold(int playerIndex) {
         playersInGame.set(playerIndex, false);
         playersRemaining--;
-    }
-
-    private String boardToString() {
-        String boardString = "";
-        for (Card card : boardCards) {
-            boardString += card.toString() + ", ";
-        }
-
-        return boardString;
     }
 }
