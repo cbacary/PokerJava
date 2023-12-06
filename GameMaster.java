@@ -124,7 +124,17 @@ public class GameMaster {
         }
     }
 
+    public ArrayList<Player> getAllPlayers() {
+        return players;
+    }
+
+    public int getDealer() {
+        return dealer;
+    }
+
     public Player getCurrentPlayer() { return players.get(currentPlayer); }
+
+    public int getCurrentPlayerInt() {return currentPlayer;}
 
     public int getCurrentPlayerCallAmount() {
         System.out.printf("%d %d %d\n",

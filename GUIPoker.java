@@ -56,7 +56,8 @@ public class GUIPoker extends JFrame {
         layeredPane = getLayeredPane();
 
         playerPanel = new JPanel(new FlowLayout());
-        tablePanel = new GUITablePanel(playerCount);
+        tablePanel = new GUITablePanel(gm.getAllPlayers(), gm.getDealer());
+        tablePanel.setCurrentPlayer(gm.getCurrentPlayerInt());
 
         foldButton = new JButton("Fold");
         callButton = new JButton("Call");

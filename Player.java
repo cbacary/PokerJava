@@ -4,11 +4,10 @@ import java.util.Comparator;
 public class Player {
 
     private String lastAction;
+    private String name;
 
     private ArrayList<Card> cards;
     private HandResult hand;
-
-    private String name;
 
     private int money;
     private int moneyEnteredThisRound;
@@ -49,6 +48,10 @@ public class Player {
     public int getMoneyEnteredThisPot() { return moneyEnteredThisPot; }
 
     public void resetMoneyEntered() { moneyEnteredThisRound = 0; }
+
+    public String getLastAction() {
+        return lastAction;
+    }
 
     public void resetPlayer() {
         hand = null;
