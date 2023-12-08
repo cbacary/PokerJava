@@ -63,7 +63,6 @@ public class GameMaster implements Serializable {
             currentPlayer = getNextActivePlayer(currentPlayer);
 
         endPlayer = currentPlayer;
-        System.out.println(currentPlayer);
 
         if (gameStage == 0) {
             postBlinds();
@@ -99,7 +98,6 @@ public class GameMaster implements Serializable {
         int nextPlayer = currentPlayer;
         while (true) {
             nextPlayer = (nextPlayer + 1) % players.size();
-            System.out.println(nextPlayer + " " + endPlayer);
             if (nextPlayer == endPlayer)
                 return false;
             if (playersInGame.get(nextPlayer)) {
@@ -146,9 +144,6 @@ public class GameMaster implements Serializable {
     public int getCurrentPlayerInt() { return currentPlayer; }
 
     public int getCurrentPlayerCallAmount() {
-        System.out.printf("%d %d %d\n",
-                          players.get(currentPlayer).getMoneyEntered(),
-                          currentRaise, endPlayer);
         return currentRaise - players.get(currentPlayer).getMoneyEntered();
     }
 
@@ -253,7 +248,6 @@ public class GameMaster implements Serializable {
     private void dealCards() {
         for (int i = 0; i < 2; ++i) {
             int player = (dealer + 3) % players.size();
-            System.out.println(player);
             do {
                 players.get(player).addCard(deck.getTopCard(cardsInPlay));
                 cardsInPlay += 1;
@@ -304,7 +298,6 @@ public class GameMaster implements Serializable {
                 break;
             }
         }
-        System.out.println(nextActive);
         return nextActive;
     }
 }
