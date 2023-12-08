@@ -29,8 +29,6 @@ public class GUIPlayer extends JComponent {
 
     public void correctBounds(Rectangle bounds) {
         setBounds(bounds);
-        System.out.println(
-            String.format("%d %d", getBounds().width, getBounds().height));
     }
 
     public void setFold() { color = Color.GRAY; }
@@ -49,8 +47,6 @@ public class GUIPlayer extends JComponent {
 
         g2d.setColor(Color.WHITE);
         g2d.drawString(tag, x, y - 15);
-        //System.out.println(String.format("%d %d %d %d", x, y, w, h));
-
         g2d.drawString(player.getLastAction(), x + w / 4, y + h / 2);
 
         color = Color.BLUE;

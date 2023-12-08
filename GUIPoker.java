@@ -128,7 +128,6 @@ public class GUIPoker extends JFrame {
 
     private void updateInfo() {
         Player player = gm.getCurrentPlayer();
-        System.out.println(player.getName());
 
         int money = player.getMoney();
         int callAmount = gm.getCurrentPlayerCallAmount();
@@ -208,7 +207,6 @@ public class GUIPoker extends JFrame {
 
         for (Card card : playerCards) {
             String imageFileName = IMAGE_DIR + card.getImageFileName();
-            System.out.println(imageFileName);
 
             Image img = new ImageIcon(imageFileName).getImage();
             img = img.getScaledInstance(75, 113, Image.SCALE_SMOOTH);
