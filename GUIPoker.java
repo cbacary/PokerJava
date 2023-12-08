@@ -32,12 +32,12 @@ public class GUIPoker extends JFrame {
     private JLabel playerHand;
     private JLabel currentPot;
 
-    public GUIPoker(int numPlayers) {
+    public GUIPoker(int numPlayers, boolean lowBallMode) {
         playerCount = numPlayers;
         showPlayerCards = false;
 
         // Create the game and play the first stage, dealing and post blinds
-        gm = new GameMaster(playerCount, STARTING_CASH);
+        gm = new GameMaster(playerCount, STARTING_CASH, lowBallMode);
         gm.startNextStage();
 
         setTitle("Texas Hold 'Em Poker");
@@ -109,6 +109,23 @@ public class GUIPoker extends JFrame {
         add(playerPanel, BorderLayout.SOUTH);
     }
 
+    private void checkNextStage() {
+        if (gm.enterNextTurnOrder()) { // Go to next player
+            updateInfo();
+            // Reset cards and stuff
+        } else { // Stage is finished
+            gm.endCurrentStage();
+            ArrayList<Player> winners = gm.checkWin();
+            if (winners != null) {
+                String winMessage = gm.rewardPlayers(winners);
+                JOptionPane.showMessageDialog(this, winMessage);
+                gm.reset();
+            }
+            gm.startNextStage();
+            updateInfo();
+        }
+    }
+
     private void updateInfo() {
         Player player = gm.getCurrentPlayer();
         System.out.println(player.getName());
@@ -136,6 +153,9 @@ public class GUIPoker extends JFrame {
 
         if (showPlayerCards)
             toggleSeeCards();
+
+        repaint();
+        revalidate();
     }
 
     private void setupBoardCards() {
@@ -220,23 +240,6 @@ public class GUIPoker extends JFrame {
     private void handleRaiseAction(int raiseAmount) {
         gm.currentPlayerRaise(raiseAmount);
         checkNextStage();
-    }
-
-    private void checkNextStage() {
-        if (gm.enterNextTurnOrder()) { // Go to next player
-            updateInfo();
-            // Reset cards and stuff
-        } else { // Stage is finished
-            gm.endCurrentStage();
-            ArrayList<Player> winners = gm.checkWin();
-            if (winners != null) {
-                String winMessage = gm.rewardPlayers(winners);
-                JOptionPane.showMessageDialog(this, winMessage);
-                gm.reset();
-            }
-            gm.startNextStage();
-            updateInfo();
-        }
     }
 
     private void toggleSeeCards() {

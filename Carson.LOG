@@ -1,0 +1,11 @@
+.LOG
+11/20/23
+Created Card class, along with enums Rank and Suit
+Created Deck class, class containing the deck of cards for poker. 
+
+11/25/23
+Created Player class and included support for calls and raises
+
+11/27/23
+Made the GameMaster class, adds support for proper Poker rules
+

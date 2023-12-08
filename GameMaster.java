@@ -1,11 +1,14 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class GameMaster {
+public class GameMaster implements Serializable {
 
     private final int SB_AMOUNT = 20;
     private final int BB_AMOUNT = 50;
     private final static int NUM_STAGES = 4;
+
+    private boolean lowBallMode;
 
     private ArrayList<Player> players;
     private ArrayList<Boolean> playersInGame;
@@ -28,7 +31,7 @@ public class GameMaster {
     // Dealer is simply represented with int, will be incremented each round
     private int dealer;
 
-    GameMaster(int numPlayers, int startingCash) {
+    GameMaster(int numPlayers, int startingCash, boolean _lowBallMode) {
         players = new ArrayList<Player>();
         playersInGame = new ArrayList<Boolean>();
         for (int i = 0; i < numPlayers; ++i) {
@@ -47,6 +50,8 @@ public class GameMaster {
         currentRaise = 0;
         gameStage = 0;
         dealer = 0;
+
+        lowBallMode = _lowBallMode;
     }
 
     public void startNextStage() {
@@ -58,6 +63,7 @@ public class GameMaster {
             currentPlayer = getNextActivePlayer(currentPlayer);
 
         endPlayer = currentPlayer;
+        System.out.println(currentPlayer);
 
         if (gameStage == 0) {
             postBlinds();
@@ -81,33 +87,6 @@ public class GameMaster {
         }
     }
 
-    public void reset() {
-        playersRemaining = players.size();
-        cardsInPlay = 0;
-        pot = 0;
-        currentRaise = 0;
-        gameStage = 0;
-
-        dealer = (dealer + 1) % players.size();
-
-        for (int i = 0; i < players.size(); ++i) {
-            playersInGame.set(i, (players.get(i).getMoney() > 0 ? true : false));
-            players.get(i).resetPlayer();
-        }
-
-        boardCards.clear();
-
-        deck.shuffleDeck();
-    }
-
-    public void currentPlayerRaise(int raiseAmount) {
-        playerRaise(currentPlayer, raiseAmount);
-    }
-
-    public void currentPlayerFold() { playerFold(currentPlayer); }
-
-    public void currentPlayerCall() { playerCall(players.get(currentPlayer)); }
-
     /**
      * Returns true if the stage is finished.
      * */
@@ -129,6 +108,34 @@ public class GameMaster {
             }
         }
     }
+
+    public void reset() {
+        playersRemaining = players.size();
+        cardsInPlay = 0;
+        pot = 0;
+        currentRaise = 0;
+        gameStage = 0;
+
+        dealer = (dealer + 1) % players.size();
+
+        for (int i = 0; i < players.size(); ++i) {
+            playersInGame.set(i,
+                              (players.get(i).getMoney() > 0 ? true : false));
+            players.get(i).resetPlayer();
+        }
+
+        boardCards.clear();
+
+        deck.shuffleDeck();
+    }
+
+    public void currentPlayerRaise(int raiseAmount) {
+        playerRaise(currentPlayer, raiseAmount);
+    }
+
+    public void currentPlayerFold() { playerFold(currentPlayer); }
+
+    public void currentPlayerCall() { playerCall(players.get(currentPlayer)); }
 
     public ArrayList<Player> getAllPlayers() { return players; }
 
@@ -195,13 +202,17 @@ public class GameMaster {
         // Sort by hand value
         Collections.sort(sortedByHand, Player.compareByHand);
 
-        for (int i = sortedByHand.size() - 1; i >= 1; --i) {
+        int i = (lowBallMode ? 0 : sortedByHand.size() - 1);
+        int step = (lowBallMode ? 1 : -1);
+        while ((lowBallMode ? i < sortedByHand.size() - 1 : i >= 1)) {
 
             winners.add(sortedByHand.get(i));
             if (Player.compareByHand.compare(sortedByHand.get(i),
-                                             sortedByHand.get(i - 1)) != 0) {
+                                             sortedByHand.get(i + step)) != 0) {
                 break;
             }
+
+            i += step;
         }
 
         return winners;

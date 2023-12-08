@@ -14,9 +14,9 @@ public class GUIOpen {
 
         mainMenu.setMenuListener(new GUIMainMenu.MenuListener() {
             @Override
-            public void onPlayClicked(int playerCount) {
+            public void onPlayClicked(int playerCount, boolean lowBallMode) {
                 mainMenu.setVisible(false);
-                pokerGame = new GUIPoker(playerCount);
+                pokerGame = new GUIPoker(playerCount, lowBallMode);
                 pokerGame.setVisible(true);
             }
         });
