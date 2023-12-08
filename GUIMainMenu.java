@@ -8,7 +8,7 @@ import javax.swing.*;
 public class GUIMainMenu extends JFrame {
 
     public interface MenuListener {
-        void onPlayClicked(int playerCount);
+        void onPlayClicked(int playerCount, boolean lowBallMode);
     }
 
     private MenuListener listener;
@@ -53,6 +53,10 @@ public class GUIMainMenu extends JFrame {
         // Add the panel with radio buttons to the frame
         add(radioButtonPanel);
 
+        JCheckBox lowBallMode = new JCheckBox("Low Ball Mode");
+
+        add(lowBallMode);
+
         // Play button
         JButton playButton = new JButton("Play");
 
@@ -61,7 +65,7 @@ public class GUIMainMenu extends JFrame {
                 
                 for (int i = 0; i < countButtons.size(); ++i) {
                     if (countButtons.get(i).isSelected()) {
-                        listener.onPlayClicked(i + 2);
+                        listener.onPlayClicked(i + 2, lowBallMode.isSelected());
                         return;
                     }
                 }
