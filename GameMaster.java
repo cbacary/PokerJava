@@ -202,7 +202,7 @@ public class GameMaster implements Serializable {
         // Sort by hand value
         Collections.sort(sortedByHand, Player.compareByHand);
 
-        int i = (lowBallMode ? 0 : sortedByHand.size());
+        int i = (lowBallMode ? 0 : sortedByHand.size() - 1);
         int step = (lowBallMode ? 1 : -1);
         while ((lowBallMode ? i < sortedByHand.size() - 2 : i >= 1)) {
 
