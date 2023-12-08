@@ -52,6 +52,11 @@ public class GameMaster {
     public void startNextStage() {
         currentPlayer = (gameStage == 0 ? (dealer + 3) % players.size()
                                         : (dealer + 1) % players.size());
+
+        // If the next active player is in fact the SB then it returns that
+        if (!playersInGame.get(currentPlayer))
+            currentPlayer = getNextActivePlayer(currentPlayer);
+
         endPlayer = currentPlayer;
 
         if (gameStage == 0) {
@@ -86,7 +91,7 @@ public class GameMaster {
         dealer = (dealer + 1) % players.size();
 
         for (int i = 0; i < players.size(); ++i) {
-            playersInGame.set(i, true);
+            playersInGame.set(i, (players.get(i).getMoney() > 0 ? true : false));
             players.get(i).resetPlayer();
         }
 
@@ -106,7 +111,7 @@ public class GameMaster {
     /**
      * Returns true if the stage is finished.
      * */
-    public boolean nextPlayerTurn() {
+    public boolean enterNextTurnOrder() {
 
         if (playersRemaining <= 1) {
             return false;
@@ -115,6 +120,7 @@ public class GameMaster {
         int nextPlayer = currentPlayer;
         while (true) {
             nextPlayer = (nextPlayer + 1) % players.size();
+            System.out.println(nextPlayer + " " + endPlayer);
             if (nextPlayer == endPlayer)
                 return false;
             if (playersInGame.get(nextPlayer)) {
@@ -124,17 +130,13 @@ public class GameMaster {
         }
     }
 
-    public ArrayList<Player> getAllPlayers() {
-        return players;
-    }
+    public ArrayList<Player> getAllPlayers() { return players; }
 
-    public int getDealer() {
-        return dealer;
-    }
+    public int getDealer() { return dealer; }
 
     public Player getCurrentPlayer() { return players.get(currentPlayer); }
 
-    public int getCurrentPlayerInt() {return currentPlayer;}
+    public int getCurrentPlayerInt() { return currentPlayer; }
 
     public int getCurrentPlayerCallAmount() {
         System.out.printf("%d %d %d\n",
@@ -170,7 +172,7 @@ public class GameMaster {
             return null;
         } else if (playersRemaining == 1) {
             for (int i = 0; i < players.size(); ++i) {
-                if (!playersInGame.get(i)) {
+                if (playersInGame.get(i)) {
                     winners.add(players.get(i));
                     return winners;
                 }
@@ -281,5 +283,17 @@ public class GameMaster {
         players.get(playerIndex).setActionFold();
         playersInGame.set(playerIndex, false);
         playersRemaining--;
+    }
+
+    private int getNextActivePlayer(int index) {
+        int nextActive = index;
+        for (int i = index + 1; (i + 1) % players.size() != index; ++i) {
+            if (playersInGame.get(i % players.size())) {
+                nextActive = i % players.size();
+                break;
+            }
+        }
+        System.out.println(nextActive);
+        return nextActive;
     }
 }

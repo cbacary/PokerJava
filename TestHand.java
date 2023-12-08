@@ -7,6 +7,7 @@ public class TestHand {
         System.out.print("testStraightFlush -- ");
         testStraight(true);
         testPair();
+        testTwoPair();
         testFourOfAKind();
         testFullHouse();
         testFourOfAKind();
@@ -108,6 +109,20 @@ public class TestHand {
         player.add(new Card(Rank.EIGHT, Suit.DIAMONDS));
 
         checkHand("Pair", Hand.PAIR, board, player);
+    }
+
+    private static void testTwoPair() {
+        ArrayList<Card> board = new ArrayList<>();
+        ArrayList<Card> player = new ArrayList<>();
+
+        board.add(new Card(Rank.TWO, Suit.HEARTS));
+        board.add(new Card(Rank.FIVE, Suit.SPADES));
+        board.add(new Card(Rank.TWO, Suit.CLUBS));
+        board.add(new Card(Rank.SEVEN, Suit.DIAMONDS));
+        player.add(new Card(Rank.EIGHT, Suit.HEARTS));
+        player.add(new Card(Rank.EIGHT, Suit.DIAMONDS));
+
+        checkHand("TwoPair", Hand.TWO_PAIR, board, player);
     }
 
     private static void testThreeOfAKind() {

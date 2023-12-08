@@ -143,6 +143,7 @@ public class GUIPoker extends JFrame {
 
         // If there are no board cards just return
         if (boardCardPanel != null) {
+            layeredPane.remove(boardCardPanel);
             boardCardPanel.removeAll();
         }
 
@@ -156,7 +157,7 @@ public class GUIPoker extends JFrame {
             String imageFileName = IMAGE_DIR + card.getImageFileName();
 
             Image img = new ImageIcon(imageFileName).getImage();
-            img = img.getScaledInstance(52, 75, Image.SCALE_SMOOTH);
+            img = img.getScaledInstance(78, 113, Image.SCALE_SMOOTH);
 
             ImageIcon cardIcon = new ImageIcon(img);
             JLabel cardLabel = new JLabel(cardIcon);
@@ -222,7 +223,7 @@ public class GUIPoker extends JFrame {
     }
 
     private void checkNextStage() {
-        if (gm.nextPlayerTurn()) { // Go to next player
+        if (gm.enterNextTurnOrder()) { // Go to next player
             updateInfo();
             // Reset cards and stuff
         } else { // Stage is finished

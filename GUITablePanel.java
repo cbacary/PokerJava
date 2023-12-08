@@ -87,14 +87,14 @@ public class GUITablePanel extends JComponent {
 
             FontMetrics f = g2d.getFontMetrics();
 
-            int centerX, centerY;
+            int centerX;
 
             centerX = centerStringX(tag, f, x, PLAYER_W);
             g2d.drawString(tag, centerX, y - 20);
 
             String lastAction = players.get(i).getLastAction();
             centerX = centerStringX(lastAction, f, x, PLAYER_W);
-            g2d.drawString(players.get(i).getLastAction(), centerX, y - 5);
+            g2d.drawString(lastAction, centerX, y - 5);
 
             String playerMoney =
                 String.format("$%d", players.get(i).getMoney());
