@@ -204,8 +204,7 @@ public class GameMaster implements Serializable {
 
         int i = (lowBallMode ? 0 : sortedByHand.size());
         int step = (lowBallMode ? 1 : -1);
-        while ((lowBallMode && i < sortedByHand.size() - 2) ||
-               (!lowBallMode && i >= 1)) {
+        while ((lowBallMode ? i < sortedByHand.size() - 2 : i >= 1)) {
 
             winners.add(sortedByHand.get(i));
             if (Player.compareByHand.compare(sortedByHand.get(i),
@@ -213,7 +212,7 @@ public class GameMaster implements Serializable {
                 break;
             }
 
-            i += (lowBallMode ? 1 : -1);
+            i += step;
         }
 
         return winners;
