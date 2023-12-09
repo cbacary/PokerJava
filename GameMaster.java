@@ -271,7 +271,7 @@ public class GameMaster implements Serializable {
         // Now add raise
         int amountRaised = player.raise(amountToRaise);
 
-        endPlayer = (amount > 0 ? playerIndex : endPlayer);
+        endPlayer = (amountRaised > 0 ? playerIndex : endPlayer);
 
         currentRaise += amountRaised;
         pot += amountCalled + amountRaised;
