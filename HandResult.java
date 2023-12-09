@@ -26,8 +26,8 @@ public class HandResult implements Comparable<HandResult> {
         handCards.add(card);
     }
 
-    public void updateHand(Hand h, ArrayList<Card> cards) { 
-        hand = h; 
+    public void updateHand(Hand h, ArrayList<Card> cards) {
+        hand = h;
         handCards = new ArrayList<Card>(cards);
     }
 
@@ -45,12 +45,15 @@ public class HandResult implements Comparable<HandResult> {
         Collections.sort(other.handCards, Card.compareByRank);
         Collections.sort(handCards, Card.compareByRank);
 
-        // Since both hands are identical, their list size is also the same
-        for (int i = handCards.size() - 1; i >= 0; --i) {
-            int comparison = handCards.get(i).compareTo(other.handCards.get(i));
+        int i = handCards.size() - 1;
+        int j = other.handCards.size() - 1;
+        while (i >= 0 && j >= 0) {
+            int comparison = handCards.get(i).compareTo(other.handCards.get(j));
             if (comparison != 0) {
                 return comparison;
             }
+            i -= 1;
+            j -= 1;
         }
 
         // both hands are identical
