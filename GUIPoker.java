@@ -9,7 +9,7 @@ public class GUIPoker extends JFrame {
 
     private final Color BACKGROUND = new Color(0, 120, 0);
     private final int STARTING_CASH = 1000;
-    private final String IMAGE_DIR = "./CardImages/";
+    private final String IMAGE_DIR = "/CardImages/";
 
     private int playerCount;
     private boolean showPlayerCards;
@@ -175,7 +175,9 @@ public class GUIPoker extends JFrame {
         for (Card card : boardCards) {
             String imageFileName = IMAGE_DIR + card.getImageFileName();
 
-            Image img = new ImageIcon(imageFileName).getImage();
+            ImageIcon imageIcon = new ImageIcon(getClass().getResource(imageFileName));
+
+            Image img = imageIcon.getImage();
             img = img.getScaledInstance(78, 113, Image.SCALE_SMOOTH);
 
             ImageIcon cardIcon = new ImageIcon(img);
@@ -208,10 +210,12 @@ public class GUIPoker extends JFrame {
         for (Card card : playerCards) {
             String imageFileName = IMAGE_DIR + card.getImageFileName();
 
-            Image img = new ImageIcon(imageFileName).getImage();
-            img = img.getScaledInstance(75, 113, Image.SCALE_SMOOTH);
+            ImageIcon imageIcon = new ImageIcon(getClass().getResource(imageFileName));
 
-            ImageIcon cardIcon = new ImageIcon(img);
+            Image img = imageIcon.getImage();
+            img = img.getScaledInstance(78, 113, Image.SCALE_SMOOTH);
+
+            ImageIcon cardIcon = new ImageIcon(img);            
             JLabel cardLabel = new JLabel(cardIcon);
 
             cardPanel.add(cardLabel);
